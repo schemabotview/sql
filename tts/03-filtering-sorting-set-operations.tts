@@ -1,0 +1,63 @@
+Notebook three. Filtering, sorting, and set operations.
+
+This notebook is about three jobs that look unrelated on the surface but always travel together in real queries. Filtering, which is the where clause and everything that lives inside it. Sorting and slicing, which is order by, limit, and offset. And finally combining results from more than one query, which is the set operators union, intersect, and except. By the end of this notebook you will know the full vocabulary for narrowing a result set down to exactly the rows you want, in the order you want them, with no surprises hiding in null.
+
+We reconnect to the same DuckDB file we have been using. The customers and orders tables from notebook one are still there, and partway through this notebook we will add a small prospects table so we have something interesting to union and intersect against.
+
+Section one. The where clause, comparison operators, boolean logic, and precedence. Where runs per row. For each row coming out of from, the engine evaluates the boolean expression you have written. If the expression evaluates to true, the row survives. If it evaluates to false, or if it evaluates to unknown, the row is dropped.
+
+The comparison operators are the usual six: equals, not equals — which you can write as the less-than greater-than diamond or as bang equals — less than, less or equal, greater than, and greater or equal. These work the same across every dialect you will meet.
+
+The logical operators are and, or, and not. The trap in this section is precedence. And binds tighter than or, in exactly the same way that multiplication binds tighter than addition. So when you mix the two operators, you must parenthesize, or the parser will read a different query than the one you intended. The query you think you wrote and the query the engine sees can disagree silently, and the bug only shows up when one branch of the condition matters more than the other.
+
+Section two. Three filter idioms beyond simple equality: pattern matching, range matching, and set membership. The like operator does string pattern matching. The percent sign is the multi-character wildcard, matching zero or more characters. The underscore is the single character wildcard. There is also an i-like variant, supported in Postgres and DuckDB, that is case insensitive. In MySQL, regular like is case insensitive by default, depending on collation. In SQL Server you control case with the collate keyword. So this is one of those small dialect details to keep in mind.
+
+Between gives you inclusive range matching. Between a and b is a shorthand for greater-or-equal a and less-or-equal b — inclusive on both ends. This matters for date and timestamp ranges, and we will come back to that in the pitfalls section.
+
+In takes a parenthesized list of values, and is a shorthand for an or chain of equality checks. X in one comma two comma three is the same as x equals one or x equals two or x equals three. The shorthand reads better, and importantly it gives the planner a clearer signal to optimize.
+
+Section three. Null in filters, and the not-in trap. A quick recap from notebook two: the where clause treats unknown the same as false. Any comparison that touches null produces unknown. So a row whose filter expression involves null silently disappears from your result. You always use is null and is not null for null checks, never equals null.
+
+Now the expensive surprise. The not-in operator is broken when the list contains null. If null is anywhere inside not in, the result becomes unknown for every single row, and the query returns zero rows. The query does not error. It does not warn. It just silently gives you an empty result, which is one of the worst possible failure modes because it looks like a correct query against an empty domain.
+
+Why does this happen? X not in a comma b comma null expands to x not equals a, and x not equals b, and x not equals null. That last comparison is unknown, because nothing compares meaningfully to null. And anything anded with unknown is at best unknown, which the where clause drops.
+
+The fix is to guarantee that the list cannot contain null. The most reliable way is to filter nulls out of the source: when you build the in-list from a subquery, add an is-not-null filter. Or rewrite the whole pattern using not exists, which has cleaner null semantics, and which we cover in notebook six.
+
+Section four. Order by. Direction, multi-column sorting, and null ordering. Order by sorts the result set after the projection has been computed. A few rules to carry. First, direction is per column. Order by a-ascending comma b-descending sorts ascending by a, then descending by b to break ties. Ascending is the default if you write nothing. Second, you can sort by an expression or by a select alias. Select runs before order by, as we covered in notebook two, so the aliases you assign in the select clause are visible to order by.
+
+Third, and this is the dialect minefield, null ordering differs across engines. Postgres puts nulls last for ascending and first for descending. MySQL puts nulls first either way. SQL Server puts nulls first either way. So if your query has any nullable column in the order by clause, and the placement of nulls actually matters for correctness or for user experience, you must use the explicit nulls-first or nulls-last keywords. Postgres, DuckDB, Oracle, and Snowflake all support this standard syntax.
+
+Fourth, avoid ordering by ordinal position. Writing order by one, three means order by the first and third columns of the select list. It is terse, but it breaks the moment someone reorders the select clause. Always name the columns explicitly.
+
+Section five. Limit, offset, and the pagination problem. Limit n keeps the first n rows of the result. Limit n offset m skips m rows and then keeps n. SQL Server has its own spelling, either the older top n or the newer offset m rows fetch next n rows only, but the idea is the same across dialects.
+
+Two properties to internalize. First, limit without order by is non-deterministic. Top ten only makes sense if you have specified what top means. The engine is free to give you any ten rows it likes, and that set can change between runs. Always pair limit with order by. Second, offset is linear in the offset value. To return rows ten-thousand-and-one through ten-thousand-twenty, the engine still has to produce, sort, and discard the first ten thousand rows. On a large table, page five hundred takes dramatically longer than page one. The cost grows with how deep the user has scrolled.
+
+The fix for real pagination is keyset pagination, sometimes called cursor pagination. Instead of saying skip ten thousand rows, you remember the last value you saw on the previous page and ask the engine for rows after it. Something like where id greater than the last-seen id, order by id, limit twenty. This stays constant time per page no matter how deep the user goes, because the index does the seek directly to the starting position.
+
+Section six. Set operations. Union, intersect, and except. Set operators stack the results of two queries vertically and treat the rows as members of a set. Union combines the two results and removes duplicates. Union all combines without removing duplicates, which is faster and is almost always what you actually want when you know the two inputs are already disjoint. Intersect returns rows that appear in both queries. Except, called minus in Oracle, returns rows in the left query that are not in the right.
+
+Every dialect agrees on the rules. Both sides must produce the same number of columns. The column types must be compatible position by position — the engine matches columns by position, not by name. The result column names come from the first select. And a single order by or limit at the very end applies to the combined result, not to either branch individually.
+
+To demonstrate these we add a small prospects table. Prospects are people on the newsletter mailing list who have not yet bought anything. We seed it with three rows: Dave and Erin, who are pure prospects, and Alice, who is both a customer and a prospect because she signed up for the newsletter before placing her first order.
+
+With that in place, union of customers and prospects gives every contactable person, with Alice appearing exactly once because the duplicate is collapsed. Union all gives the same set, but Alice appears twice. Intersect of customers and prospects gives just Alice, the only overlap. Except, with customers on the right, gives the prospects who have not yet become customers — Dave and Erin.
+
+Section seven. Pitfalls to carry forward. Seven of them.
+
+First, not in with null in the list returns zero rows. Either guarantee no nulls in the list, by filtering with is-not-null, or rewrite the query with not exists.
+
+Second, like with a leading percent sign — a pattern like percent foo percent — cannot use a standard b-tree index. The engine is forced into a full table scan. For this kind of substring search at scale, you reach for trigram indexes or for a real full-text search system.
+
+Third, between is inclusive on both ends. For half-open ranges over timestamps, like all of April, prefer greater-or-equal April first and strictly-less-than May first. Otherwise the last millisecond of the last day of the month can either be included or excluded depending on how your timestamps are stored, and that produces off-by-one bugs that are extremely annoying to track down.
+
+Fourth, null ordering defaults differ across dialects. Write nulls first or nulls last explicitly whenever it could affect correctness.
+
+Fifth, limit without order by gives non-deterministic results. Add the order, even in throwaway queries. The habit sticks, and it saves you the day a throwaway query is copied into production.
+
+Sixth, reaching for union when union all is correct. Union does an implicit deduplication that costs either a sort or a hash table. Only use union when you actually expect duplicates and want them collapsed. Otherwise use union all and save the work.
+
+Seventh, mixing and with or without parentheses. And binds tighter, so a or b and c is parsed as a or the group b-and-c. That is rarely what you mean. Parenthesize.
+
+That closes notebook three. Next up is notebook four, joins, where we connect customers, orders, and prospects, and meet the four standard join types along with the surprises hiding in outer joins and null.
