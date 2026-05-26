@@ -1,0 +1,65 @@
+Notebook seven. Window functions.
+
+Window functions are the feature that separates intermediate SQL from advanced SQL. Once you have them in your toolkit, a large class of analytical questions that used to need self joins, correlated subqueries, or post-processing in application code become a single clean query. Running totals, ranks, percentages of group total, day-over-day deltas, top n per group, moving averages — all of those are window functions in one or two lines. By the end of this notebook you will know what makes a function a window function, how partition by and order by inside the over clause control its behavior, the ranking and offset functions and how they handle ties, and the rules around window frames that catch even experienced people off guard.
+
+We reconnect to the same DuckDB file and add a few extra orders so the window demos have something interesting to show. Alice gets two new orders, including a second one priced at one hundred forty-nine fifty, which creates a tie. Bob gets two new orders spaced over time so we can compute running totals and deltas across a real sequence.
+
+Section one. The over clause. Keep the row, compute over a window. A window function is an aggregate-like computation that runs over a set of rows — the window — and returns one value per input row. Critically, it does not collapse the rows the way group by does. Every input row still shows up in the output, with the window's computed value attached.
+
+Syntactically, you take any aggregate function or any of the special window-only functions, and you follow it with the keyword over and a parenthesized clause that describes the window. The over clause is what turns an ordinary function into a window function. Inside the parentheses, you describe three things: which rows to include in the window — that is partition by — in what order they appear within the window — that is order by — and which subset of them the current row should actually see — that is the frame.
+
+The simplest possible over clause is empty parentheses, which means the whole table is the window and every row sees every other row. Useful for things like "show me each order alongside the grand total", which would otherwise require a join against a one-row aggregate.
+
+The fundamental contrast with group by is this. Group by collapses many rows into one. Over partition by preserves every row and attaches the group's value to it. Same partitioning logic, completely different output shape.
+
+Section two. Partition by. Independent windows per group. Partition by splits the rows into independent windows, one window per distinct value of the partition expression. Each row only sees the rows in its own partition, not the rows in any other partition.
+
+The classic workhorse pattern is to put every detail row alongside its own group's total or average. Each order showing up with its customer's total spend, or each employee showing up with their department's average salary, or each product showing up with its category's median price. The mental model is short and worth repeating: group by collapses; over partition by preserves.
+
+A natural follow-up is the share-of-total calculation. Each order's amount divided by its customer's total amount, multiplied by one hundred, gives the percentage of that customer's spend that this particular order represents. The whole thing fits in a single select clause because both the per-order amount and the per-customer total are available on every row.
+
+Section three. Order by inside over. Order within the window. The order by clause that appears inside an over clause is a completely different thing from the order by at the end of a query. The outer order by sorts the final result for display. The inner order by defines the order in which rows appear within each window — which is what lets the engine compute things like running totals, ranks, and lag.
+
+For ranking functions and offset functions — row number, rank, lag, lead, and so on — the inner order by is required. The function has no meaning without a defined sequence. For aggregate window functions like sum and average, adding an inner order by flips the behavior in a subtle but important way. Without order by, the aggregate sees every row in the partition. With order by, the default frame becomes "from the first row of the partition up to and including the current row", which gives you a running aggregate.
+
+The two order by clauses are independent and often differ. You can compute a running total in date order inside the window, and then sort the displayed result by customer name. The window-internal order controls semantics; the outer order controls presentation.
+
+Section four. Ranking functions. There are four standard ranking functions, all driven by the same over partition-by order-by shape. They differ only in how they handle ties.
+
+Row number assigns strict positions: one, two, three, four. Ties get broken arbitrarily — two rows with identical sort keys still get different numbers. Rank assigns the same number to tied rows and then leaves a gap. One, two, two, four — the third row shares rank two, and the next distinct row jumps to rank four. Dense rank also assigns the same number to tied rows but leaves no gap. One, two, two, three — the third row shares rank two, and the next distinct row is rank three. Ntile of n splits the partition into n roughly equal buckets, numbered from one to n.
+
+The most common use case for ranking is "top n per group". Rank within each partition, then keep ranks one through n. The portable way is to wrap the query in a c-t-e or subquery and filter the rank column with where. The shorter way, in dialects that support it, is qualify. Qualify is to window functions what having is to aggregates — it lets you filter on the function's output without wrapping the query. Snowflake, BigQuery, DuckDB, and Databricks all support it. Postgres and SQL Server still require the c-t-e form.
+
+In our data, Alice has two orders both priced at one hundred forty-nine fifty. Sorting her orders by amount descending puts those two tied rows first. Row number gives them positions one and two. Rank gives them both position one, then jumps to three. Dense rank gives them both position one, then continues to two. Seeing all three side by side in one query is the cleanest way to internalize the difference.
+
+Section five. Offset functions. Looking at neighbors. Offset functions let a row see other rows in its own window. Lag of a column gives you the value of that column from n rows earlier in the window, with n defaulting to one. Lead is the symmetric forward version. First value returns the column's value in the first row of the frame, and last value returns it in the last row of the frame — but watch out, "last row of the frame" is not the same as "last row of the partition", which is the topic of one of the pitfalls in section seven.
+
+Both lag and lead accept an optional default value for when the offset falls outside the partition. Lag of amount, one, zero returns zero for the first row in each customer's history instead of null. That can be useful when downstream code expects numbers and not nulls.
+
+The classic uses of lag and lead are time-series differences. Each row alongside the previous row's value, with the delta computed inline. Each order alongside the customer's previous order amount and the difference. Each daily metric alongside yesterday's metric and the day-over-day change. They are also useful for gap detection — comparing each event's timestamp against the previous event's timestamp to find unusually long pauses.
+
+Section six. Window frames. Rows versus range. The frame is the subset of the partition that the function actually sees for the current row. The defaults are subtle and worth memorizing.
+
+Without an order by clause inside over, the frame is the whole partition. Every row sees every other row. With an order by inside over but no explicit frame, the default frame is range between unbounded preceding and current row. That gives you running aggregates, which is usually what you want — but the word range is doing something specific that bites people, namely treating tied sort values as a single position.
+
+Explicit frames come in two flavors. The rows form is physical: rows between two preceding and current row is literally three rows, regardless of their values. The range form is value-based: it treats every row with the same order by value as a single logical position. For evenly spaced data the two are identical. For data with ties or gaps they differ in important ways.
+
+The practical rule is this. Moving averages and trailing windows almost always want rows. The classic three-row trailing average is rows between two preceding and current row, and it includes the previous two rows plus the current one. Use range when you want value-based semantics — for example, "all rows in the last seven days regardless of how many there are" — and when your data actually has ties or unevenly spaced sort keys.
+
+Section seven. Pitfalls to carry forward. Seven of them.
+
+First, the default-frame surprise. With order by inside over but no explicit frame, the frame defaults to range, not rows. For most running aggregates you really want rows between unbounded preceding and current row. Be explicit and the question of "what did the engine pick" goes away.
+
+Second, last value returns the current row, not the partition's last row. The default frame ends at current row, so last value of that frame is always the row you are on. To get the actual last value in the partition, you must spell out the frame as rows between unbounded preceding and unbounded following. This one trips up everybody at least once.
+
+Third, where cannot reference window functions. Window functions run after where, and also after group by and having. To filter on a window result, you wrap the query in a c-t-e or subquery, or you use qualify if your dialect supports it. Reaching for where here is one of the most common new-to-windows mistakes.
+
+Fourth, the two order by clauses are independent. The one inside over controls window semantics. The one at the end controls how the final result is displayed. They often differ. Do not assume one substitutes for the other.
+
+Fifth, partition by a high-cardinality column creates many small windows and is expensive. If the partition column is unique per row, every window is exactly one row and the function is doing pointless work. That is almost always a sign that the logic is wrong.
+
+Sixth, n-tile does not handle ties specially. Two rows with identical sort values can land in different buckets. Use n-tile only when bucket-boundary precision does not matter. For exact equal-size grouping with deterministic tie handling, you build it yourself with row number divided by partition size.
+
+Seventh, window functions cannot appear inside aggregate function arguments, and aggregates cannot appear inside over partition-by expressions directly. When you need to combine the two, build it in stages with a c-t-e — aggregate first, then window over the aggregated result.
+
+That closes notebook seven. Next up is notebook eight, the final notebook in this series, where we shift from reading data to changing it. Data definition language, data manipulation language, transactions and acid guarantees, and a first look at the explain command for understanding what the engine is actually doing under the hood.

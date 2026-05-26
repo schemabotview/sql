@@ -1,0 +1,65 @@
+Notebook six. Subqueries and common table expressions.
+
+So far every query we have written has been flat. One select, one from, possibly some joins, a where clause, maybe a group by. In this notebook the queries start to nest. A subquery is a select statement inside another select statement, and once you have that tool, you can express questions that are awkward or impossible in a flat query. Common table expressions, which everyone abbreviates as c-t-e, are the readable cousin of subqueries — same expressive power, much friendlier to read and maintain. By the end of this notebook you will know what subqueries can return, where they go, the difference between correlated and uncorrelated forms, why most experienced SQL writers prefer not-exists over not-in, how to use the with clause to write a query as a step-by-step pipeline, and how recursive c-t-es let you walk hierarchies and graphs.
+
+We reconnect to the same DuckDB file. Customers, orders, prospects, and employees are all there.
+
+Section one. Subquery basics. What they return, and where they can go. A subquery is a select statement nested inside another statement. The outer query treats the subquery's result as a value, as a row, or as a table, depending on how it is used.
+
+There are three shapes of subquery by what they return. A scalar subquery returns exactly one row with one column. It is usable anywhere a single value is allowed: inside the select list, inside the where clause, inside an arithmetic expression. A row subquery returns one row with multiple columns, and it pairs with row comparison constructs like the tuple a comma b equals the result of a select that produces x comma y. A table subquery returns many rows and many columns, and it lives either in the from clause as a derived table, or on the right side of an in predicate in where.
+
+There are also three shapes of subquery by where they appear in the outer query. A subquery in the select list is almost always scalar, and it is computed once per outer row, or once total if it is uncorrelated. A subquery in the from clause is a table subquery treated as a virtual table, and it must always have an alias because the engine needs a name to bind its columns to. A subquery in the where clause shows up in predicates like in, exists, and scalar comparisons.
+
+Whether the subquery is correlated, meaning it references columns from the outer query, is a separate axis on top of all of this. We come to that in section four.
+
+Section two. Scalar subqueries and derived tables. Scalar subqueries are the simplest case. They return a single value that drops into any expression context. The engine enforces the one-row-one-column constraint at runtime. If your scalar subquery accidentally returns two rows because the data shifted, the query errors out at runtime. That is generally a feature, not a bug — better to fail loudly than to silently pick one row arbitrarily.
+
+A common scalar pattern is showing each row alongside a summary statistic over the whole table. Select order id, amount, the average of amount as a scalar subquery aliased as overall average, and the difference between this row's amount and that average. The scalar runs once, and the same value drops into every output row.
+
+Derived tables are subqueries that appear in the from clause. They let you treat the result of one query as the input rows of another. They are how you built pipelines in SQL for many years before c-t-es became widely supported. Every derived table must have an alias — without one, the engine has no way to bind the inner columns to anything in the outer query. The classic pattern is pre-aggregate in the derived table, then join the aggregate onto a dimension table to attach human-readable labels.
+
+Section three. Subqueries in the where clause. In, not-in, exists, and not-exists, and how they differ on null. Four predicates use a subquery on the right-hand side, and the difference between them is one of the most important pieces of SQL fluency.
+
+X in subquery is true if x equals any value the subquery returns. X not-in subquery is true if x differs from every value the subquery returns — and as we saw in notebook three, not-in inherits the null trap. Any null in the subquery's result makes the whole predicate unknown, and the query returns zero rows silently.
+
+Exists subquery is true if the subquery returns at least one row. The values in the subquery's select list are irrelevant — most people write select one inside exists because the engine only cares whether the row exists, not what is in it. Not-exists subquery is true if the subquery returns zero rows. And critically, not-exists handles null correctly. There is no three-valued-logic land mine, because not-exists is asking a binary question — is the set empty or not — not a comparison.
+
+That is why most experienced SQL writers reach for not-exists instead of not-in whenever the subquery could produce null. The rule of thumb is this: use exists and not-exists when you are asking "are there any matching rows?". Use in when you are asking "is this value in a small static list?". The two phrasings are interchangeable for correctness when there are no nulls, but the intent is clearer when you match the form to the question.
+
+Section four. Correlated versus uncorrelated subqueries. A subquery is uncorrelated if it can be evaluated entirely on its own, with no reference to the outer query. It runs once, the engine caches its result, and the outer query reuses that result for every row.
+
+A subquery is correlated if it references one or more columns from the outer query. Conceptually it runs once per outer row, with that outer row's values substituted into the inner query. In practice, a good query planner will often rewrite the correlated form into a join under the hood, but you should always reason about correlated subqueries as if they ran per row. That mental model is what explains the output you see, and it is what tells you when a correlated subquery is going to be expensive on a large table.
+
+The classic correlated pattern is "rows that compare to a per-group statistic". Orders that are bigger than the average for their own customer. Products priced above the average for their own category. Employees paid above the median for their own department. The inner subquery does the per-group statistic. The outer query joins each row to its own statistic and filters. This is a place where window functions, which we cover in notebook seven, often produce cleaner SQL — but the correlated subquery form is older and more universal, and it works in dialects that do not support windows fully.
+
+Section five. Common table expressions. Naming the steps of a pipeline. A c-t-e is a named subquery declared at the top of a statement with the keyword with. It serves exactly the same role as a derived table in the from clause, but it has three real advantages.
+
+First, it has a name. Once you have given the subquery a name, you can refer to it by that name as many times as you like in the main query. And with chained c-t-es, later c-t-es can reference earlier ones. Second, readability. Instead of three levels of nested parentheses, you write three named steps that read top to bottom like a small program. Customer totals, then labeled, then a final join. Each step is a paragraph. Each paragraph fits in your head. Third, composability. Multiple c-t-es in one with clause, separated by commas, naturally build a pipeline. Each one consumes the previous one and produces a result for the next one.
+
+There is one subtle thing to know about c-t-es and the query planner. Older PostgreSQL, before version twelve, treated c-t-es as an optimization fence. The planner would materialize the c-t-e into a temporary result and then plan the outer query against that result. Modern Postgres, DuckDB, and most other engines have moved to inlining c-t-es by default — treating them as a notational convenience and letting the optimizer reorder things across the c-t-e boundary. Some engines support materialized and not-materialized hints if you want to override that default. Be aware that the same c-t-e referenced multiple times in an inlined model may be evaluated multiple times.
+
+Section six. Recursive c-t-es. Hierarchies and graph traversal. Some questions are inherently recursive. Give me every direct and indirect report under Carol. Give me the full ancestor chain of this category. Give me every node reachable from this starting vertex in a graph. With recursive is how SQL expresses these.
+
+A recursive c-t-e has two parts, glued together with union all. The first part is the anchor — a non-recursive query that produces the starting rows. The second part is the recursive step — a query that joins the c-t-e name back to itself, producing the next layer. The engine evaluates the anchor once, then evaluates the recursive step repeatedly, feeding each batch of new rows back into the next iteration, until the recursive step produces zero rows. At that point the recursion terminates and the union of all batches is the result.
+
+The org chart example walks employees from the top down. The anchor selects employees whose manager id is null — the roots of the tree, in our data that is Carol. The recursive step joins employees against the c-t-e: any employee whose manager id matches an employee id already in the c-t-e is added to the next layer. Depth starts at zero in the anchor and increments by one in the recursive step, so we can see how deep each person is in the hierarchy.
+
+Two things to be careful of with recursion. Without a clear termination condition, the recursion never ends. If the data could form a cycle, plain union all will run forever. Either give the c-t-e a depth column you can cap with a where clause, or use union instead of union all to deduplicate rows you have already visited. Cycles are common in graph data and rare in pure tree data, so know which one you have.
+
+Section seven. Pitfalls to carry forward. Seven of them.
+
+First, a scalar subquery that returns more than one row is a runtime error. If your data could produce more than one but you want one specifically, add limit one with an explicit order by so the choice is deterministic, or rewrite as a join.
+
+Second, not-in with a nullable subquery is the same trap from notebook three. Replace with not-exists, which has clean null semantics, or filter nulls out of the subquery explicitly with is-not-null.
+
+Third, correlated subqueries can be expensive. Conceptually they run once per outer row. Modern planners often rewrite them into joins, but not always, and not on every engine. When performance matters, check the explain plan and verify the planner is doing what you expect.
+
+Fourth, forgetting the alias on a derived table. Every subquery in from needs a name. The engine refuses unaliased ones.
+
+Fifth, treating c-t-es as performance-neutral. They used to be optimization fences in older Postgres. Today, an inlined c-t-e referenced n times can be evaluated n times unless materialized. For an expensive c-t-e used in multiple places, the materialized hint, where supported, forces single evaluation.
+
+Sixth, runaway recursive c-t-es. Without a terminating condition, the recursion never stops. Always include a depth counter you can cap, and make sure your join condition cannot cycle, or use union instead of union all to dedupe.
+
+Seventh, column count mismatch between the anchor and the recursive step. Both parts of a recursive c-t-e must produce the same number of columns with compatible types, in the same order. The engine matches them positionally.
+
+That closes notebook six. Next up is notebook seven, window functions, where we compute per-row aggregates without collapsing the rows — running totals, ranks, lag, lead, and the over clause that drives all of them.

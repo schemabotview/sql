@@ -1,0 +1,67 @@
+Notebook five. Aggregation and grouping.
+
+This notebook is about turning many rows into one. Up to now we have been working with queries that return one output row for every input row, possibly filtered or reordered. Aggregation is the first place SQL changes shape: many input rows collapse into a single output row that summarizes them. By the end of this notebook you will know the standard aggregate functions, how group by partitions the data, why having exists as a separate clause from where, the three faces of count, conditional aggregation with the filter clause, and the grouping extensions that produce multiple summary levels in one query.
+
+We reconnect to the same DuckDB file. The customers, orders, and prospects tables are still there.
+
+Section one. Aggregate functions. The mental model is simple. An aggregate function takes a set of rows and returns one value. Five standard aggregates cover almost everything you will write. Count returns how many. Sum returns the total. Average, which we write as avg, returns the arithmetic mean. Min returns the smallest value. Max returns the largest. When you call an aggregate without a group by clause, the engine treats the entire table as one group, and you get back a single-row result containing those summary numbers.
+
+Section two. Group by, and the single-value-per-group rule. Group by takes a list of columns and partitions the rows from from and where into groups that share the same values for those columns. It then produces exactly one output row per group.
+
+That single-output-row guarantee drives the most important rule in aggregation. Every column in the select list must either be in the group by list, or be inside an aggregate function. Nothing else is allowed. The reason is mechanical. Imagine group by customer-id collapses three of Alice's orders into one row. That one output row clearly has customer-id equal to one — that is the grouping value. It clearly has sum of amount equal to one hundred seventy nine point four nine — that is the aggregate. But what would it have for raw amount, with no aggregation? The first order's amount? The largest? The aggregate engine refuses to guess, and any sane SQL engine refuses to even compile such a query.
+
+Standard SQL enforces this rule strictly. MySQL historically allowed it and silently picked an arbitrary value per group, which is one of the most expensive footguns in the history of databases. It was finally fixed in MySQL five point seven with the only-full-group-by mode, but you still see the loose-mode behavior in older systems.
+
+A common pattern in this notebook and beyond is left-joining a parent table to a child table and grouping by the parent. That way every parent row appears in the result even if it has no children. Carol, who has no orders, gets a row showing zero spend rather than disappearing entirely. The coalesce of sum of amount with zero is what gives you a real zero instead of a null in the total column.
+
+Section three. Having. Filtering groups, not rows. Where filters rows before grouping. Having filters groups after grouping. The two are not interchangeable, and the choice affects both correctness and performance.
+
+Recall the logical clause order from notebook two. From runs first. Then where. Then group by. Then having. Then select. Then order by. Then limit. Because where runs before group by, the aggregates do not exist yet at where time. A where clause that says sum of amount greater than one hundred is a category error: you cannot filter a thing that has not been computed yet. The engine rejects it.
+
+Because having runs after group by, the aggregates do exist there, and you can filter on them. The rule of thumb is, put a predicate in where if you can. Filtering rows out early shrinks the input that group by has to process, and that is almost always faster than computing aggregates over the entire table and then throwing most of them away in having. Use having only when the filter genuinely depends on an aggregate value.
+
+Section four. Null in aggregates, and the three faces of count. One rule covers most of it. Every aggregate except count-star ignores null. Sum of amount skips null rows entirely — they contribute nothing to the total. Average of amount divides the sum by the count of non-null values, not by the total row count. So if one row out of ten has null in the column you are averaging, the average divides by nine. Min and max also skip nulls. This is usually what you want, but it can surprise. If you really want nulls to count as zero in an average, you write average of coalesce of the column with zero, and the engine will then include those rows with value zero in the calculation.
+
+Count has three distinct forms, and confusing them is one of the most common SQL bugs.
+
+Count-star, written as count with an asterisk inside the parentheses, is the number of rows in the group. Nulls are counted, because the row exists regardless of whether any particular column has a value.
+
+Count of a specific column counts the number of rows where that column is not null. This differs from count-star whenever the column is nullable. In our customers table, count-star returns three, but count of email returns two, because Carol has a null email and is therefore not counted.
+
+Count distinct of a column counts the number of distinct, non-null values of that column. On the orders table, count star returns three, the number of orders. Count distinct of customer-id returns two, the number of unique customers who placed those orders — Alice and Bob.
+
+One more null gotcha. When every aggregate input is null, or when there are no rows in the group, sum returns null, not zero. If your downstream code expects a number, wrap the result with coalesce of sum with zero. Same goes for avg, min, and max — they all return null when the input set is empty.
+
+Section five. Conditional aggregates with the filter clause. Sometimes you want to aggregate only the rows that match a condition, and at the same time aggregate over a different condition in another column, all in one pass over the data. The standard SQL feature for this is the filter clause attached to an aggregate call.
+
+You write sum of amount, then filter, then in parentheses, where order-date is greater than or equal to some cutoff. The aggregate only sees the rows whose filter expression is true. This is dramatically cleaner than the old idiom of sum of case when condition then amount else null end, and it lets the engine optimize more aggressively because the filter is a first-class part of the aggregate semantics rather than a workaround.
+
+The filter clause is supported by Postgres, DuckDB, SQLite three point three zero and later, and Snowflake. SQL Server and MySQL still require the case-when form. The right time to reach for filter is when you want side-by-side aggregates over different slices of the same row set — for example, this-period total beside prior-period total in one output row, or small-orders sum beside large-orders sum.
+
+Section six. Grouping extensions. Rollup, cube, and grouping sets. Sometimes you want multiple grouping levels in one result. A total per customer per year, plus a total per customer across all years, plus a grand total across everyone. You could write three separate queries and union them together, but standard SQL has three extensions that do all of this in one pass.
+
+Grouping sets is the explicit form. You list every grouping level as a tuple. Customer comma year is one level. Just customer is another. The empty tuple, written as a pair of parentheses with nothing inside, means the whole table with no grouping at all — the grand total. Each tuple becomes one set of output rows.
+
+Rollup is shorthand for the hierarchical case. Rollup of a, b, c expands to the grouping sets a-b-c, then a-b, then a, then the empty grand total. It is the right tool for time hierarchies like year, quarter, month, or for geographic hierarchies like country, region, city. You get subtotals at every level of the hierarchy in one query.
+
+Cube is the power set of the listed columns. Cube of a, b, c expands to every possible subset of those three columns — eight grouping levels in total. You use cube when you want all possible aggregation slices in one query, for example in a pivot or a multi-dimensional report.
+
+One detail that catches people out. Rows that come from a rolled-up or cubed level have null in the columns that were not part of that level. A subtotal row across all customers shows null in the customer column, because that column was not used for grouping at that level. That null is a placeholder, not a real value. The grouping function returns one for synthetic placeholder nulls and zero for actual stored nulls, so you can tell the two apart when it matters.
+
+Section seven. Pitfalls to carry forward. Seven of them.
+
+First, forgetting the single-value rule. Every select column outside an aggregate must be in group by. Strict engines reject the query. Older MySQL silently picked arbitrary values, which produces wrong answers without any warning.
+
+Second, using where to filter aggregates. Aggregates do not exist yet at where time. Use having for aggregate predicates and keep row-level predicates in where, where they belong and where they help the planner narrow the input early.
+
+Third, count star versus count of a column. They are equal only when the column is not null. If you are counting how many records have a non-empty value of that column, use count of the column.
+
+Fourth, sum returns null over zero non-null rows, not zero. Wrap with coalesce of sum with zero if downstream code expects a number.
+
+Fifth, average divides by the non-null count, not the total row count. If nulls should be treated as zero in the average, write average of coalesce of the column with zero explicitly.
+
+Sixth, count distinct on a huge table is expensive. Unlike plain count, it cannot use a one-pass counting strategy. It has to sort or hash every value to deduplicate, which uses memory and time proportional to the cardinality. For approximate counts at scale, modern engines offer approximate count distinct functions — approx-count-distinct in DuckDB, BigQuery, and Snowflake, count-distinct-approx in Spark — that give a result within a percent or two of the exact answer at a fraction of the cost.
+
+Seventh, aggregating across a left join and then filtering the right side in where. This is the same trap from notebook four. A predicate on a right-side column in where silently converts the left join back into an inner join, because null fails the predicate. If you want to keep unmatched left rows, the predicate belongs in the on clause, not in where.
+
+That closes notebook five. Next up is notebook six, subqueries and common table expressions, where queries start nesting inside other queries and the with clause becomes your best friend for building readable, step-by-step pipelines.
