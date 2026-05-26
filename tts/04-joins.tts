@@ -1,0 +1,53 @@
+Notebook four. Joins.
+
+Joins are how the relational model earns its name. Each table holds one kind of fact — customers in one place, orders in another, employees in a third — and a join is how you reconnect those facts on demand to answer questions that span more than one table. By the end of this notebook you will know the conceptual model that sits underneath every join, the four standard join types and when to reach for each one, the self join pattern, and the places where null silently changes the meaning of your query.
+
+We reconnect to the same DuckDB file. The customers, orders, and prospects tables from earlier notebooks are still there, and partway through we add a small employees table for the self-join section.
+
+Section one. The conceptual model. Every join, no matter how fancy, is the same two-step idea. Step one: pair up every row of table A with every row of table B. That is the cartesian product. Step two: keep only the pairs that satisfy the on-predicate. Drop the rest.
+
+Real engines never actually materialize the full cartesian product. They use hash joins, sort-merge joins, or nested loops, depending on the data sizes and the available indexes. But the result is as-if the engine did the pair-up-then-filter dance. That is a useful mental model because it explains two things at once. First, why a missing on-clause produces all n-times-m rows. Second, why joining on a unique column produces at most n rows. Outer joins change step two: instead of dropping the unmatched rows, they keep them and fill the missing side with null.
+
+Section two. Inner join, and the choice between on and using. Inner join keeps only the rows that have a match on both sides. The word inner is optional. A bare join means the same thing. But writing inner join out in full reads better in real code, and makes the intent unambiguous.
+
+There are two ways to specify the join predicate. The on form is fully general. It accepts any boolean expression, which means you can join on inequalities, on ranges, on date overlaps, on multi-column predicates — anything you can write as a boolean. The using form is a shorthand. When the join column has the same name on both sides, you can write using customer-id in parentheses, and the engine pairs the two columns up for you. Using has a small but pleasant side effect: it produces a single customer-id column in the output instead of two. With on, you get both c-dot-customer-id and o-dot-customer-id in the result.
+
+A separate piece of advice: avoid natural join. Natural join automatically joins on every column whose name appears on both sides. It looks clever in a one-time demo and breaks badly the moment somebody adds a new column with a colliding name. Always be explicit about which columns drive the join.
+
+Section three. Outer joins. Preserving one or both sides. Outer joins preserve unmatched rows instead of dropping them. There are three flavors. Left outer join, commonly written as just left join, keeps every row from the left side. When there is no match on the right, the right-side columns come back as null. Right outer join is the mirror image — keep every row from the right, fill the left with null. In practice, right join is rare, because you can always flip the order of the tables and write a left join instead, which reads more naturally. Full outer join keeps every row from both sides at once, filling either side with null where there is no match.
+
+The natural use of a left join is the question, "give me every customer, with their orders if they have any, and still show me the customers who have no orders." Carol has no orders in our data, so an inner join would drop her, but a left join keeps her with null in the order columns. A full outer join is useful when neither side is privileged — when you want every customer and every prospect, with overlaps lined up by name and singletons preserved on whichever side they came from.
+
+Section four. Cross join, and the accidental cartesian product. Cross join is the explicit cartesian product — every row on the left paired with every row on the right, no filter at all. It is occasionally what you want. A common legitimate use is to generate a grid, like every customer paired with every month of the year, so you can left-join sales into the grid and get zeros for the months a given customer had no activity.
+
+The footgun is the comma-separated from syntax that predates the explicit join keywords. From a comma b is exactly a cross join. Add a where clause that links the keys together — where a-dot-id equals b-dot-id — and it becomes an inner join. But forget the where clause, and you silently get n-times-m rows. With our tiny three-by-three tables it is nine rows, which is harmless. With two ten-million-row tables it is a hundred trillion rows, which crashes the engine.
+
+Modern explicit join-on syntax makes this almost impossible to do by accident. Most engines reject inner join without an on-clause as a syntax error. The rule for saved code is simple: always use explicit join syntax. Never the comma form.
+
+Section five. Self join. When one side of the join is the same table. A self join is just a regular join where both sides happen to be the same table. The mechanics are identical to any other join. The only requirement is that you alias the table twice, so the engine can tell the two roles apart.
+
+The classic use case is a self-referential hierarchy. An employees table where each row has a manager-id column pointing at another row in the same table. To produce employee-name and manager-name pairs, you join the employees table to itself. One alias plays the employee role, the other alias plays the manager role, and the join predicate links the employee's manager-id to the manager's employee-id. Use a left join so that the very top of the hierarchy — somebody like a chief executive who has no manager — still appears in the result, with null in the manager column instead of being dropped.
+
+Section six. Multi-table joins, and null behavior in join keys. Joins chain. Table A join table B on something, join table C on something else — the engine reads the chain left to right, and each new join clause adds another table to the running result. The order you write the joins in does not have to match the order the engine actually executes them. The query planner is free to reorder inner joins based on cost. But for outer joins the order is semantically meaningful: A left join B and B left join A are different queries, because the side that is preserved is different.
+
+Two things about null in joins to internalize. First, null never matches in a join key. The expression c-dot-customer-id equals o-dot-customer-id evaluates to unknown whenever either side is null. The where clause and the join machinery both treat unknown as not-true, so the row is dropped, or in an outer join, treated as unmatched. This is why join key columns are almost always declared not-null in the schema.
+
+Second, a null in an outer-join result is ambiguous. Did the right side have no match? Or did the right side have a match whose stored value happens to be null? You cannot tell from the result alone. When this distinction matters, the standard trick is to select a known not-null column from the right side — typically its primary key — and check that one for null. If the primary key is null, there was no match. If the primary key is not null but some other column is null, there was a match and the stored value really is null.
+
+Section seven. Pitfalls to carry forward. Seven of them.
+
+First, a missing or wrong on-predicate is the most common way to accidentally generate a cartesian product. After every join you write, sanity-check the row count against your expectation. If you joined a thousand-row table to a thousand-row table and got back a million rows, the predicate is wrong.
+
+Second, join keys containing null. Nulls in a join key never match, so any row with a null key silently disappears from inner joins. Declare key columns not-null whenever the data model allows.
+
+Third, outer-join nulls are ambiguous. Disambiguate by checking a known not-null column from the right side, typically its primary key.
+
+Fourth, filtering an outer-joined column in the where clause silently converts an outer join back into an inner join. A predicate like where o-dot-amount greater than ten, sitting after a left join orders, drops every unmatched row, because null greater than ten is unknown. If you want to keep the unmatched rows, move the predicate into the on-clause where it applies during the join itself, not after it.
+
+Fifth, select star across joins. Column name collisions get auto-mangled by the engine in confusing ways. List the columns you actually want.
+
+Sixth, comma-separated from without a where clause is an instant cartesian product. Always use explicit join-on in saved code.
+
+Seventh, mixing aliases between joins. Once you alias a table, you must reference it by the alias everywhere in the query. Writing customers c join orders o on customers-dot-customer-id is invalid in standard SQL. The first reference established the alias, and the rest of the query must use it.
+
+That closes notebook four. Next up is notebook five, aggregation and grouping, where group by, having, and the aggregate functions turn rows into summaries.
