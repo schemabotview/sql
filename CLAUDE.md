@@ -35,6 +35,32 @@ After that, cells beginning with `%%sql` run queries directly and render results
 - Use **real-world domain examples** (orders, customers, employees, events) rather than abstract `t1`/`col_a` placeholders.
 - Include a **"common pitfalls"** section per notebook (NULL comparisons, implicit type coercion, accidental cross joins, etc.).
 
+## TTS Guidelines
+
+`.tts` files are read aloud by ChatterboxTTS (typically via Colab on a T4 GPU). They must be plain spoken prose — what a teacher would say at a whiteboard.
+
+- **Plain prose only** — no markdown, no `#` headings, no bullets, no backticks, no asterisks. Write section titles as a plain sentence ending with a full stop (e.g. `Window functions.`).
+- **No raw SQL or code blocks** — describe what a query computes, never paste it. A query like `SELECT name FROM customers WHERE customer_id = 1` becomes "look up the customer with id one and return their name". Method-style chains like `df.filter(...).select(...)` become "filter, then select."
+- **Spell out symbols, keywords, and shorthand:**
+  - Comparison operators: `=` → "equals", `<>` / `!=` → "not equals", `<` → "less than", `>=` → "greater or equal"
+  - LIKE wildcards: `%` → "percent sign", `_` → "underscore"
+  - Other operators: `||` (string concat) → "double pipe" or "concatenated with", `->` (Postgres JSON) → "json arrow", `->>` → "json arrow returning text", `*` (in `COUNT(*)`) → "star", `.` (in `c.name`) → "dot"
+  - SQL acronyms: SQL → "sequel" (or "ess-cue-el"), ANSI → "ansi", CTE → "common table expression" (spell out on first use, then `c-t-e`), DDL → "data definition language", DML → "data manipulation language", ACID → "acid" (the word), MVCC → "multi-version concurrency control", PK → "primary key", FK → "foreign key", T-SQL → "t-sequel", PL/SQL → "p-l sequel"
+  - General acronyms: JSON → "jay-son", I/O → "i-o", JVM → "java virtual machine", API → "ay-pee-eye", RAM → "ram", CPU → "see-pee-you"
+  - Aggregate calls: `COUNT(*)` → "count star", `COUNT(DISTINCT x)` → "count distinct x", `SUM(amount)` → "sum of amount", `AVG(x)` → "average of x"
+  - Function names: `ROW_NUMBER()` → "row number", `LAG` / `LEAD` → "lag" / "lead", `COALESCE` → "coalesce", `NULLIF` → "null if", `ROLLUP` / `CUBE` → "rollup" / "cube", `EXTRACT(YEAR FROM x)` → "extract year from x"
+  - Predicates and null: `NULL` → "null", `IS NULL` → "is null", `NOT EXISTS` → "not exists", `NOT IN` → "not in", `IN` → "in"
+  - Compound keywords: `GROUP BY` → "group by", `ORDER BY` → "order by", `LEFT JOIN` → "left join" (or "left outer join"), `UNION ALL` → "union all", `WITH RECURSIVE` → "with recursive", `ON CONFLICT` → "on conflict"
+  - Complexity: O(1) → "constant time", O(n) → "linear time", O(n log n) → "n log n time"
+  - Versions: `3.5.3` → "three point five point three", `MySQL 8+` → "MySQL eight and later"
+  - Column names: snake_case unfolds to spaces — `customer_id` → "customer id", `order_date` → "order date", `manager_id` → "manager id", `event_time` → "event time"
+  - Currency: `$29.99` → "twenty-nine ninety-nine" or "twenty-nine dollars and ninety-nine cents"
+  - Dates: `DATE '2024-04-01'` → "April first, twenty twenty-four"
+- **Natural spoken flow** — write as a teacher explains at a whiteboard. Use transitional phrases: "notice that", "the key insight here is", "to put it another way", "picture this".
+- **Skip visual-only content** — never narrate ASCII diagrams, result tables, query output, or `EXPLAIN` plans. Describe what the listener should picture instead.
+- **Pace with paragraph breaks** — each paragraph = one idea. A blank line between paragraphs gives the TTS engine a natural pause. Aim for 2–4 sentences per paragraph.
+- **Filename convention** — `.tts` filename matches the notebook stem exactly: `01-sql-foundations.ipynb` → `tts/01-sql-foundations.tts` → `audio/01-sql-foundations.wav`.
+
 ## Topics Covered
 
 | # | Topic | Notebook | Audio |
