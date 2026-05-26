@@ -1,0 +1,83 @@
+Notebook eight. Data definition language, data manipulation language, transactions, and query planning. This is the final notebook in the series.
+
+Up until now we have been reading data. Selecting, filtering, joining, aggregating, windowing — all of those leave the underlying tables completely untouched. In this notebook the queries actually change something. We cover the language for defining the shape of the data, the language for modifying the rows inside it, the transactional machinery that makes those modifications safe, the indexes that make reads fast, and the explain command that tells you what the engine is really doing under the hood.
+
+We reconnect to the same DuckDB file one more time.
+
+Section one. Data definition language. Defining the shape of your data. Data definition language, almost always abbreviated as d-d-l, is the subset of SQL that creates, alters, and drops the database's schema objects — tables, views, indexes, and sequences. Three core verbs cover most of it. Create makes a new schema object. Alter changes an existing object: adding a column, renaming it, changing its type, attaching a constraint. Drop removes the object entirely, and is almost always irreversible — there is no undo.
+
+Two important pieces sit alongside the three verbs. A view is a saved select statement that you can query like a table. Create view, then a name, then as, then the select statement. The view holds no data of its own — each time you query the view, the underlying select runs again. Materialized views, in contrast, do store the result physically, and have to be refreshed when the source data changes. Postgres, Snowflake, Oracle, and BigQuery support materialized views natively. MySQL and SQL Server have workarounds rather than native support.
+
+One subtle point about d-d-l: it is usually auto-committed. Most engines treat each create, drop, or alter as its own implicit transaction, so you cannot roll it back if you change your mind. Postgres is the notable exception — most d-d-l in Postgres is transactional, meaning you can wrap a create-table inside a begin and rollback it. Know which behavior your target engine has before you rely on it.
+
+Section two. Data manipulation language. Insert, update, and delete. Data manipulation language, abbreviated d-m-l, is the subset of SQL that changes the rows inside tables. Three verbs again. Insert adds a new row. Update modifies existing rows. Delete removes rows.
+
+A small style point that turns out to be very important. Always list the columns in your insert statement. Insert into customers, parens customer-id comma name comma email comma signup-date, values, then the four values in matching order. The positional form — insert into customers values, then four values — works but breaks silently the day someone adds a new column to the table. The values now line up with the wrong columns and the engine cheerfully accepts the broken insert. Naming the columns makes the statement future-proof.
+
+And then the single most expensive mistake in all of SQL. Update without a where clause modifies every row in the table. Delete without a where clause removes every row. Both default to "all rows", with no warning and no confirmation. Always preview your write with a select using the exact same predicate, see what rows would be affected, and only then run the update or delete. When you can, wrap the write in a transaction so rollback is an option if it goes wrong. We come to transactions in section four.
+
+Section three. Upsert. On conflict and merge. Upsert is shorthand for the very common pattern: "insert this row, but if it conflicts with one that already exists, update the existing row instead". Two standard forms exist for this, and the dialect support is unfortunately fragmented.
+
+The first form is insert dot dot dot on conflict, parens with the conflict target columns, do update set. This is the Postgres style, and it is also supported by SQLite, DuckDB, and CockroachDB. The conflict target is a unique constraint or a primary key. The keyword excluded — capital e, x, c, l, u, d, e, d — refers to the row you tried to insert. So set email equals excluded-dot-email means "use the email value from the row I was trying to insert".
+
+The second form is merge. Merge into target, using source, on a join condition, when matched then update, when not matched then insert. This is the standard ANSI form, and it is supported by SQL Server, Oracle, Snowflake, BigQuery, and Postgres fifteen and later. More verbose, but also more powerful. Merge can insert, update, and delete in a single statement based on different match outcomes.
+
+MySQL has its own dialect-specific spelling: insert dot dot dot on duplicate key update. Same idea, different keywords. Pick whichever form your target engine supports, and do not roll your own check-then-insert. Between the check and the insert another transaction can race in, change the state, and your code's assumption about whether the row exists is suddenly wrong. Upsert exists exactly to avoid that race.
+
+Section four. Transactions and acid. A transaction is a unit of work the database treats as all-or-nothing. You open the transaction with begin or begin transaction. You run any number of statements inside it. And you end the transaction with either commit, which applies all the changes atomically, or rollback, which discards every change as if nothing happened.
+
+The four-letter promise transactional databases make is acid. Atomicity means the transaction is all-or-nothing. If the engine crashes halfway through, recovery leaves the database in the state it was in before the transaction started. There is no partial commit. Consistency means the constraints you defined — primary keys, foreign keys, check constraints, not-null — are enforced at the transaction boundary. You cannot commit a state that violates them. Isolation means concurrent transactions do not see each other's uncommitted work. The exact strength of that promise is set by the isolation level — read-uncommitted, read-committed, repeatable-read, and serializable, from weakest to strongest. Most engines default to read-committed. The trade-off is that stricter isolation costs throughput, because the engine has to do more work to prevent transactions from seeing inconsistent intermediate states. Durability means that once commit returns successfully, the change survives crashes, power loss, and restart. The engine implements this with a write-ahead log: every change is recorded in a sequential log on disk before the data files are updated.
+
+The rule of thumb is this. Any multi-statement change that must be atomic — a money transfer that debits one account and credits another, a multi-row update where partial completion would be a bug, an insert into one table followed by an update of a parent counter — goes inside an explicit transaction. Single-statement changes auto-commit by default, so you do not need to be explicit there, but you should know that the default is auto-commit if you care.
+
+Section five. Indexes. The lookup acceleration mechanism. An index is a separate data structure, usually a b-tree, that the database maintains alongside a table. The index maps the values of one or more columns back to the rows that contain them. With an index on customer-id, the engine can find all of Alice's orders without scanning the whole orders table. Without the index, it has to read every row and check.
+
+Five things to know about indexes.
+
+First, indexes accelerate reads but slow writes. Every insert, update, or delete that touches an indexed column must also update the index. On write-heavy tables this cost is real, and you have to weigh it against the read benefit.
+
+Second, primary keys and unique constraints are indexed automatically. The engine builds the index when you declare the constraint. You usually only add indexes explicitly for columns that you filter on or join on heavily, beyond what is already covered by your constraints.
+
+Third, selectivity matters. An index on a column with only two distinct values, like a boolean is-active column, is almost never used. The query planner correctly judges that scanning the whole table is cheaper than reading the index, looking up the matching row identifiers, and then reading the table at each one. Indexes pay off when they can narrow the result set down substantially.
+
+Fourth, composite indexes — indexes on more than one column — are order-sensitive. An index on the pair a and b accelerates queries that filter on a, on a and b together, and queries that order by a then b. It does not accelerate a query that filters on b alone. The column order in the index matters as much as which columns are in it.
+
+Fifth, the planner picks. Just because an index exists does not mean it will be used. On small tables a sequential scan is often cheaper than an index scan plus a table lookup, and the planner knows this. If you create an index on a seven-row table and the planner ignores it, that is correct behavior, not a bug. The same index on a million-row table changes everything.
+
+Section six. Explain. Reading a query plan. Explain, followed by a query, asks the engine what it would do to run the query — the execution plan — without actually running it. Explain analyze runs the query and reports the actual measured timings and row counts alongside the plan. Use explain to peek, use explain analyze when you want to see what actually happened.
+
+Plans are trees. Each node is an operator. Sequential scan, index scan, hash join, merge join, sort, aggregate. Data flows up the tree, from the leaves where the tables live, to the root where the final result emerges. Reading a plan, you read it bottom-up.
+
+Four things to look for when you read a plan.
+
+Scan type. A sequential scan reads every row of the table. An index scan uses an index to jump directly to matching rows. On a large table, seeing a sequential scan with a filter on top is a hint that an index might help.
+
+Join algorithm. Hash join builds a hash table on the smaller side and probes it with the larger. Merge join requires both sides to be sorted, and often appears with an explicit sort node underneath. Nested loop scans the inner side once per outer row — fast on tiny inputs, catastrophically slow on big ones. If you see a nested loop with two large tables, something is wrong.
+
+Estimated row counts versus actual row counts, which you only get with explain analyze. When these diverge wildly, the planner's statistics are stale, and you should run the analyze command to refresh them. Confusingly, the analyze command for refreshing statistics has the same name as the explain analyze flavor for running the query — context tells you which one is meant.
+
+Sort spills. A sort node that exceeds the available memory writes its intermediate state to disk. Disk sorts are dramatically slower than in-memory sorts. If you see a spill, either narrow the input upstream so less data has to be sorted, or raise the memory budget if the engine lets you.
+
+Reading plans is a skill that takes practice. The right habit is to run explain on every slow query before reaching for any other tool. The plan tells you what is happening; everything else is guessing.
+
+Section seven. Pitfalls, and where to go from here. Eight pitfalls to carry forward.
+
+First, update or delete without a where clause touches every row. Always preview with the same predicate as a select. Wrap risky writes in a transaction so rollback is an option.
+
+Second, positional insert breaks silently the day a new column is added. Always list the columns in the insert statement.
+
+Third, do-it-yourself upsert opens a race window between the check and the write. Use on-conflict or merge.
+
+Fourth, long-running transactions hold locks. The longer a transaction stays open, the more it blocks concurrent work, and the larger its rollback segment grows. Keep transactions short.
+
+Fifth, indexes are not free. Every write has to update them. An index that does not pay for itself in faster reads is pure overhead. Drop the indexes you do not actually use.
+
+Sixth, explain is read-only but explain analyze actually executes the query. Running explain analyze on a delete runs the delete. Wrap in a transaction first if you need to inspect the plan of a destructive statement.
+
+Seventh, foreign key cascades. On-delete-cascade is convenient but can mass-delete in surprising ways. Know the cascade graph before you turn it on.
+
+Eighth, d-d-l is usually not transactional. Most engines auto-commit create, drop, and alter. Postgres is the exception. Test in your target engine before relying on transactional schema changes.
+
+That was the last topic of the last notebook. Where to go from here. The eight notebooks in this series cover the SQL language itself — enough to read, write, debug, and reason about the queries you will meet in everyday application, analytics, and data engineering work. Beyond this series sit topics that are about the systems that run SQL, rather than the language itself. Concurrency control internals like multi-version concurrency control and locking. Replication and read replicas. Sharding and distributed query execution. Columnar versus row storage trade-offs. And the per-dialect features that each engine specializes in — window function extensions, JSON and array operators, geospatial types, time-series extensions. Pick whichever the engine you actually use cares about, and dig in from there.
+
+End of the SQL series.
