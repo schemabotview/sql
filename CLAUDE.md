@@ -99,6 +99,11 @@ safe for headless capture); `src/index.css` themes the course-index landing with
 
 ## Status  (updated 2026-08-05)
 
+**All 5 courses complete + shipped.** 44 sections across 11 scenes, authored + validated
+(`tsc` + `validateCourse`). **Live at [graphl.in/sql/](https://graphl.in/sql/)** (deploys via GitHub
+Actions → Pages) and **listed on the graphl.in catalog** (`../schemabotview.github.io/concepts.json`).
+The **one remaining task is narration audio** — no TTS wavs generated yet for any course.
+
 ### Scenes (`src/scenes/`)
 - **`sql-landscape`** — the 8-band master map (72 nodes), from the owner's diagram, laid out as
   clean horizontal BANDS (top ops row: DDL/DCL · Catalog · Transactions · Programmatic; then
@@ -119,7 +124,7 @@ safe for headless capture); `src/index.css` themes the course-index landing with
   (same 5 orders as `joins`, for continuity): left `w-grouped` collapses to 4 rows, right
   `w-windowed` keeps all 5 + a `running_total` column. Below: `w-over` (PARTITION BY / ORDER BY /
   frame) + `w-funcs` (ranking · LAG/LEAD · running aggregates). Used by `queries` §6.
-- **`write-path`** — Course 3 spine (built 2026-08-05; sections not yet wired). 4 stacked bands,
+- **`write-path`** — Course 3 spine. 4 stacked bands,
   toured stage-by-stage: **DML verbs** (`wp-insert`/`wp-update`/`wp-delete`/`wp-merge`, ORANGE) ·
   **the transaction** (`wp-begin`→`wp-work`→`wp-commit`, `wp-rollback`, `wp-savepoint`, BLUE, with
   a BEGIN→work→COMMIT flow + an "on error"→ROLLBACK edge) · **ACID** (`wp-a`/`wp-c`/`wp-i`/`wp-d`,
@@ -132,7 +137,7 @@ safe for headless capture); `src/index.css` themes the course-index landing with
   `iso-anom` = 3 anomalies across (`iso-dirty`/`iso-nonrep`/`iso-phantom`, RED) · `iso-levels` =
   4 levels across (`iso-ru`/`iso-rc`/`iso-rr`/`iso-ser`, YELLOW, `symbol` kind so the level NAME is
   the headline — `term` clipped it). Used by `mutations` §7.
-- **`engine-path`** — Course 4 spine (built 2026-08-05; sections not yet wired). 5 stacked
+- **`engine-path`** — Course 4 spine. 5 stacked
   full-width bands (access + storage were split out of a nested wrapper — nesting cramped the
   children; keep bands flat & full-width): an **EXPLAIN** plan (`ep-explain`, a `code` card, GREEN) ·
   the **planner** (`ep-parse`→`ep-analyze`→`ep-rewrite`→`ep-optimize`→`ep-execute`, BLUE) ·
@@ -147,7 +152,7 @@ safe for headless capture); `src/index.css` themes the course-index landing with
   ──UPDATE→ `mv-v2` (current, GREEN); two readers `mv-txa`/`mv-txb` on two snapshots (TEAL) with
   edges resolving to different versions (the mechanism behind isolation); + `mv-buys` = readers/
   writers don't block + `mv-vac` VACUUM (GREEN). Used by `engine` §7.
-- **`capstone`** — Course 5 spine (built 2026-08-05; sections not yet wired). Unlike the other
+- **`capstone`** — Course 5 spine. Unlike the other
   spines (concept diagrams) this one is the PROJECT: a **build-flow** across the top (`cap-flow`:
   `cap-model`→`cap-secure`→`cap-load`→`cap-analyze`→`cap-report`→`cap-optimize`, coloured per reused
   course) + **6 code cards** below (`cap-c1..cap-c6` = the real SQL, 3-col × 2-row). Sections frame
@@ -244,9 +249,19 @@ step). **8 sections:** §1 the-brief (frame the spine — the plan) · §2 model
 C2·windows) · §7 optimize (card 06, C4·index+EXPLAIN) · §8 shipped (whole spine lit — series
 complete). Dataset = customers/orders (the `schema-erd` e-commerce set).
 
+### Done (shipped 2026-08-05)
+- All 5 courses authored + validated; app pushed to `schemabotview/sql`.
+- Deployed to `graphl.in/sql/` via GitHub Actions. **Pages gotcha (this repo):** the repo was
+  force-pushed over an old stub whose Pages source was **"Deploy from a branch"** (`build_type:
+  legacy`) — the Vite build ran but Pages served the raw source. Fix was to switch the Pages source
+  to **GitHub Actions** (`gh api -X PUT repos/schemabotview/sql/pages -f build_type=workflow`), which
+  the siblings already use. If a deploy ever serves un-built source, check this first.
+- Added `{ "slug": "sql", "name": "SQL" }` to `../schemabotview.github.io/concepts.json` — live on
+  the catalog.
+
 ### Deferred / next
-- TTS: regen `audio-manifest.json` (`npm run gen:audio`) once Course 2 beats are final, then Colab.
-  **Course 2 `queries` has NO audio yet** — 10 beats awaiting a TTS pass.
-- Add `{ "slug": "sql", "name": "SQL" }` to `../schemabotview.github.io/concepts.json` once a course
-  is signed off + deployable (not before).
-- Build Course 3 `mutations` (plan above), then Courses 4 `engine` · 5 `capstone`.
+- **TTS (the remaining work): NO audio for any course.** Regen `audio-manifest.json`
+  (`npm run gen:audio` — 44 beats), then run the Colab pass, dropping wavs at
+  `public/audio/<courseId>/<section-id>-<beatIndex>.wav`. Until then courses page manually (← →);
+  they don't auto-advance (timing comes from clip length).
+- Roadmap beyond SQL's five: none planned here — the arc is complete.

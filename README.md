@@ -27,9 +27,13 @@ public/audio/           per-beat narration clips  <courseId>/<section-id>-<beatI
 
 See `CLAUDE.md` for the full plan (coverage, scenes, dialect) and the **current status**.
 
-**Status (2026-08-05):** Course 1 `schema` complete (8 sections); Course 2 `queries` in progress
-(5 of 10 sections — through `group-having`). Scenes built: `sql-landscape`, `schema-erd`,
-`query-pipeline`, `joins`. See `CLAUDE.md` → Status for the detailed state and what's next.
+**Status (2026-08-05): all 5 courses complete + live.** 44 sections across 11 scenes —
+`schema` (8) · `queries` (10) · `mutations` (10) · `engine` (8) · `capstone` (8). All authored and
+validated (`tsc` + `validateCourse`). **Deployed** to **[graphl.in/sql/](https://graphl.in/sql/)**
+(GitHub Actions → Pages) and **listed on the [graphl.in](https://graphl.in) catalog**. Scenes:
+`sql-landscape`, `schema-erd`, `query-pipeline`, `joins`, `windows`, `write-path`, `isolation`,
+`engine-path`, `btree`, `mvcc`, `capstone`. **Remaining work: narration audio** — no TTS wavs yet
+(regen the manifest → Colab, see below). See `CLAUDE.md` → Status for the per-course detail.
 
 The `flow-engine` features this app uses are committed + pushed, and `package-lock.json` pins that
 commit — so `npm install` is safe.
