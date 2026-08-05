@@ -1,0 +1,135 @@
+/* The engine ships its own styles (flow-engine/styles.css); this file covers the root
+   sizing and the concept's course-index landing. No Tailwind — plain CSS.
+   Theme: Zed-slate + Plex (see workspace CLAUDE.md / finalized theme). */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: #1e2127; /* Zed-slate page ground */
+  color: #eceef2;
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- course index (mirrors the catalog index at graphl.in) --- */
+/* Border-box so max-width includes the side padding, matching the catalog (which sets it
+   globally). Scoped to the landing — the engine/player manages its own box model. */
+.idx,
+.idx * {
+  box-sizing: border-box;
+}
+/* Top-aligned, not vertically centered: the brand sits ~88px from the top and the
+   content flows down, matching the catalog's .hero/.catalog (max-width 900px, centered). */
+.idx {
+  min-height: 100%;
+}
+.idx__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 96px;
+  text-align: left;
+}
+.idx__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  width: fit-content;
+}
+.idx__logo {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+.idx__kicker {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 16px;
+  font-weight: 500;
+  color: #5b8cff;
+}
+/* Concept heading — matches the catalog's .concept__name (mono kicker + divider),
+   so the two index pages read as one system. The 32px top gap mirrors the catalog's
+   brand→concept rhythm. */
+.idx__title {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #8b909c;
+  margin: 32px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Ordered course list — a syllabus, not a card gallery (the courses are a sequence). */
+.idx__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.idx__row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  text-decoration: none;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background: #2f333d;
+  transition: border-color 0.15s, background 0.15s;
+}
+.idx__row:hover {
+  border-color: rgba(91, 140, 255, 0.6);
+  background: #363b46;
+}
+.idx__num {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(91, 140, 255, 0.12);
+  color: #5b8cff;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 600;
+}
+.idx__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+.idx__course {
+  font-size: 19px;
+  font-weight: 600;
+  color: #eceef2;
+}
+.idx__blurb {
+  font-size: 14px;
+  color: #8b909c;
+}
+.idx__meta {
+  flex: none;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: #8b909c;
+  white-space: nowrap;
+}
+@media (max-width: 560px) {
+  .idx__meta {
+    display: none;
+  }
+}

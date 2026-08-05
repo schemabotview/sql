@@ -1,0 +1,62 @@
+{
+  "concept": "sql",
+  "count": 8,
+  "entries": [
+    {
+      "course": "schema",
+      "section": "the-shape",
+      "beat": 0,
+      "file": "schema/the-shape-0.wav",
+      "line": "Before we write a single query, here's the whole of SQL on one map. It looks like a lot, but it's really one language with five sub-tongues. You use DDL to define structure — creating and altering tables. You use DQL, the SELECT statement, to query data back out. You use DML — insert, update, delete — to change data. Those changes are wrapped in transactions, which is TCL: begin, commit, rollback. And you control who can do any of it with DCL: grant and revoke. All five act on two things underneath. The catalog is the metadata — the databases, schemas, tables, constraints, and views the database keeps about itself. And storage is the data itself, living in tablespaces, pages, and rows, with a write-ahead log for durability. Around the edges sit the machinery: the query pipeline, where every SELECT runs in one fixed logical order; the programmatic layer of stored procedures, functions, and triggers; and set operations that combine query results. We'll tour all of it across five courses — and this first one is the top-left corner: how you design a database, and what the catalog records when you do."
+    },
+    {
+      "course": "schema",
+      "section": "relational-model",
+      "beat": 0,
+      "file": "schema/relational-model-0.wav",
+      "line": "The word relational is the key to all of this, and it's simpler than it sounds. A relational database keeps everything in tables. A table is just a grid: each row is one record — one customer, or one order — and each column is an attribute of that record, with a fixed data type. Every row in a table has the exact same shape, and the order of rows means nothing — mathematically, a table is a set of rows, which is why it's called a relation. Now here's the relational part. Tables don't sit alone; they point at each other. Our orders table points at customers by storing a customer's key inside each order. That one idea — a value in one table matching a value in another — is the whole game. It's how the database keeps a tangle of real-world facts consistent. And it's why we design first: get the shape of your tables and their connections right, and querying, integrity, and performance all fall into place; get it wrong, and every query you ever write will be fighting the schema. So before we touch SQL, we lay out the tables and how they link."
+    },
+    {
+      "course": "schema",
+      "section": "the-table",
+      "beat": 0,
+      "file": "schema/the-table-0.wav",
+      "line": "Let's zoom into a single table, customers, and take it apart. Reading across the top, a table is defined by its columns — and every column has two things: a name, and a data type. Here id is a bigint, name and email are text, and created_at is a timestamp with time zone. That type isn't decoration; it's a contract the database enforces. Reading down, each row is one record — one actual customer — carrying a value for every column. If you try to insert a row whose values don't match the declared types — a word where a number belongs — the database refuses it outright. That's the quiet power of types: they decide what can be stored, how two values compare to each other, and even how much space each value takes on disk. A good rule is to pick the narrowest type that comfortably fits your data — it both protects the data from bad values and makes scans faster, because there's less to read. A single well-defined table is already useful — but the real power of the relational model shows up the moment two tables connect."
+    },
+    {
+      "course": "schema",
+      "section": "keys",
+      "beat": 0,
+      "file": "schema/keys-0.wav",
+      "line": "Keys are what turn a pile of separate tables into a single connected model, and there are two of them. The first is the primary key. It's the column — or set of columns — that uniquely identifies each row; for customers, that's id. A primary key is both unique and never null, because it's the handle every other table will grab onto to refer to this row. The second is the foreign key, and this is the actual relationship. Look at orders: it has a column called customer_id, and that column is a foreign key pointing at customers.id. That single declaration encodes a real business rule — every order must belong to a real customer — and because one customer can appear in many orders, it captures a one-to-many relationship. Best of all, the database enforces it for you: this is referential integrity. If you try to insert an order whose customer_id doesn't match any existing customer, it's rejected. And you decide what happens when a parent is deleted — cascade the delete down to its orders, or restrict it and refuse. That one link, a value in one table matching a key in another, is the very heart of what relational means."
+    },
+    {
+      "course": "schema",
+      "section": "constraints",
+      "beat": 0,
+      "file": "schema/constraints-0.wav",
+      "line": "Constraints are how you hand your business rules to the database and let it enforce them for you, on every single write, forever. The core ones are simple. NOT NULL means a column is required — you can't leave it blank. UNIQUE means no two rows can share that value; we put it on email so two customers can't register the same address. CHECK lets you write an actual condition every row must satisfy — like total must be greater than zero, so a negative order is impossible. And DEFAULT supplies a value automatically when you don't provide one, which is how created_at can fill itself in with the current time. Here's the nice part: the keys you just met are really constraints too. A primary key is just UNIQUE plus NOT NULL bundled together, and a foreign key is a constraint that says this value must match a real parent row. Why push all of this down into the schema instead of checking it in your application code? Because it's enforced once, in one place — so every application, every query, every developer gets exactly the same guarantee, and bad data is turned away at the door rather than discovered months later when a report breaks. With the shape of our data defined and the rules locked in, we're ready to write the DDL that actually creates it all."
+    },
+    {
+      "course": "schema",
+      "section": "ddl",
+      "beat": 0,
+      "file": "schema/ddl-0.wav",
+      "line": "Now we write the design into the database, and the language for that is DDL — data definition language. The workhorse is CREATE TABLE: in one statement you name the table and list its columns, their types, and their constraints — everything we just designed. As the model evolves, ALTER TABLE lets you add or drop a column or a constraint without rebuilding from scratch. DROP TABLE removes a table entirely, structure and data together, while TRUNCATE is the one to reach for when you want to empty a table's rows fast but keep its shell and definition intact. Beyond tables, the same family builds the other objects: CREATE INDEX adds a fast access path, CREATE VIEW saves a query as a reusable object, and RENAME relabels a table or column. The thing to understand about every one of these is that DDL writes metadata — each statement updates the catalog, the database's own record of its structure. And in PostgreSQL, DDL is transactional, which is a real gift: you can wrap a whole migration in a transaction, and if any step fails, the entire thing rolls back cleanly, leaving your schema exactly as it was. Two of the objects we just created — views and indexes — are worth a closer look before we move on."
+    },
+    {
+      "course": "schema",
+      "section": "views-indexes",
+      "beat": 0,
+      "file": "schema/views-indexes-0.wav",
+      "line": "Two catalog objects deserve a closer look, because they're both derived from your tables rather than storing new facts of their own. First, views. A view is simply a saved query: you write a SELECT once, give it a name with CREATE VIEW, and from then on you can query that name as if it were a table. Our active_customers view might be defined as customers who've placed a recent order — so instead of rewriting that logic everywhere, everyone just selects from active_customers. A plain view stores no data at all; it re-runs its underlying query every time you read it, always giving fresh results. If that query is expensive and you'd rather cache the answer, a materialized view stores the computed rows and you refresh them on a schedule. Second, indexes. An index is an access path — a separate lookup structure, usually a B-tree, built on one or more columns. Our idx_orders_customer_id index makes the question find all orders for this customer fast, because the database can jump straight to the matching rows instead of scanning the whole table. Indexes aren't free, though: they speed up reads but slightly slow down writes, since every insert has to update the index too, and they take extra disk. That's the whole design toolkit — tables, types, keys, constraints, DDL, views, and indexes. Next, we'll start querying the data these tables hold."
+    },
+    {
+      "course": "schema",
+      "section": "you-are-here",
+      "beat": 0,
+      "file": "schema/you-are-here-0.wav",
+      "line": "Let's step back to the map we started on. The top-left corner is now lit, because that's exactly what this course filled in: define and catalog. You can now model data the relational way — as tables of typed columns, related to each other by primary and foreign keys. You can hand your business rules to the database as constraints, and build the whole structure with DDL. And you can add the two derived objects, views and indexes, all of which live in the catalog. Everything else on the map is still dim, and that's the road ahead. Next, the query pipeline — how you read all of this back out with SELECT. After that, transactions and access control, for changing data safely and deciding who's allowed to. And finally storage and the programmatic layer — where your data physically lives, and the server-side logic that runs on it. But it all starts here: with a schema in place, the next course brings it to life by querying it."
+    }
+  ]
+}
