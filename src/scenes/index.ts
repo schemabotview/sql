@@ -1,6 +1,8 @@
 import type { SceneSpec } from 'flow-engine'
+import { whyRelational } from './why-relational.ts'
 import { sqlLandscape } from './sql-landscape.ts'
 import { schemaErd } from './schema-erd.ts'
+import { normalization } from './normalization.ts'
 import { queryPipeline } from './query-pipeline.ts'
 import { joins } from './joins.ts'
 import { windows } from './windows.ts'
@@ -14,8 +16,10 @@ import { capstone } from './capstone.ts'
 // This concept's scene registry. The engine's RevealPlayer resolves a section's scene id
 // through getScene; content/courses reference these ids.
 const scenes: Record<string, SceneSpec> = {
+  [whyRelational.id]: whyRelational,
   [sqlLandscape.id]: sqlLandscape,
   [schemaErd.id]: schemaErd,
+  [normalization.id]: normalization,
   [queryPipeline.id]: queryPipeline,
   [joins.id]: joins,
   [windows.id]: windows,

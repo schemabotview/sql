@@ -1,22 +1,64 @@
 import type { Course } from 'flow-engine'
 
-// Course 1 — "Modeling data" (the DESIGN slice of the SQL lifecycle). It opens on the
-// `sql-landscape` master map (this file, §1 `the-shape`) to orient the whole concept, then
-// switches to a spacious `schema-erd` scene to teach the relational model, keys, constraints,
-// DDL, and views/indexes in depth. Solid-tour reveal: 1 beat = 1 section; the scene is
-// solidified on entry and the camera + focus tell the story (lit band, dimmed rest).
+// Course 1 — "Modeling data" (the DESIGN slice of the SQL lifecycle). It opens with a cold-open
+// motivation (§1 `why-a-database`, the `why-relational` scene) — why not just one big
+// spreadsheet? — then the `sql-landscape` master map (§2 `the-shape`) to orient the whole
+// concept, then switches to a spacious `schema-erd` scene to teach the relational model, keys,
+// constraints, DDL, and views/indexes in depth. Solid-tour reveal: 1 beat = 1 section; the scene
+// is solidified on entry and the camera + focus tell the story (lit band, dimmed rest).
 //
-// STATUS: complete — §1 overview (master map) → §2–7 the ERD deep-dive (relational model →
-// table → keys → constraints → DDL → views/indexes) → §8 you-are-here bookend (back on the map).
+// STATUS: complete — §1 why-a-database (cold open) → §2 overview (master map) → §3–5 the ERD
+// (relational model → table → keys) → §6 normalization (detour, 1NF–BCNF) → §7–9 back on the ERD
+// (constraints → DDL → views/indexes) → §10 you-are-here bookend (back on the map).
 export const schema: Course = {
   id: 'schema',
   title: 'Modeling data',
   sections: [
     {
-      // ── §1 overview (SOLID TOUR): the whole SQL map, framed whole and drawn solid.
+      // ── §1 the cold open (SOLID TOUR): WHY a relational database? Before the SQL map, show the
+      //    naive "one big spreadsheet" and the pains duplication causes. `focus: []` → whole scene
+      //    bright. §2 switches to the map — "here's the language that solves this". ──
+      id: 'why-a-database',
+      heading: 'Why a database?',
+      scene: 'why-relational',
+      focus: [],
+      slide: {
+        title: 'Why a database?',
+        body: [
+          "Before the syntax, the *why*. Imagine keeping a business in **one big spreadsheet** — every order a row, the customer's details copied in beside it.",
+          '',
+          '### It works — until it rots',
+          "- **Duplication** — Ann's name, city, and email are re-typed on *every* order she places",
+          '- **Update anomaly** — she changes her email once, and you must hunt down every row',
+          "- **Inconsistency** — miss one, or fat-finger a typo, and the *same* customer silently splits in two",
+          '',
+          '### And it can’t protect you',
+          '- **No integrity** — nothing stops a negative total, or an order for a customer who doesn’t exist',
+          '- **Can’t relate** — simple questions (*“all orders from NYC customers?”*) become painful',
+          '',
+          '### The fix is *relational*',
+          '- Store each fact **once**, in **tables** related by **keys**, with **constraints** the database enforces',
+          '',
+          'That single idea is what this whole course builds — so first, the shape of the language that does it.',
+        ].join('\n'),
+      },
+      beats: [
+        {
+          line: "Before we learn any SQL, let's answer the question underneath it: why do we even need a database? Picture running a business out of one big spreadsheet. Every order is a row, and right beside each order you copy in the customer's name, city, and email. At first, this is completely fine — it's just a sheet. But watch what happens as it grows. Ann places three orders, so Ann's name, city, and email get typed out three separate times. That's duplication, and it's the root of everything that goes wrong next. One day Ann changes her email. Now you have to find and update every single row that mentions her — that's an update anomaly, and if you miss even one, or make a typo while fixing them, the spreadsheet now disagrees with itself: two rows that are supposed to be the same customer have quietly become two different people. That's inconsistency. And notice what the sheet can never do for you: it can't stop you from entering a negative order total, or an order for a customer who was never recorded — there's no integrity. Nor can it easily answer a question that spans things, like show me every order from customers in New York — because the relationships only live in your head. A relational database is the fix for all of this at once. The idea is to store each fact exactly once, in separate tables that are related to each other by keys, with rules — constraints — that the database itself enforces on every write. That one idea is what this entire course builds toward. So let's start by looking at the shape of the language that makes it possible.",
+          delta: [
+            {
+              kind: 'solidify',
+              ids: ['wr-sheet', 'wr-pains', 'wr-dup', 'wr-anomaly', 'wr-inconsistent', 'wr-integrity', 'wr-relate'],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // ── §2 overview (SOLID TOUR): the whole SQL map, framed whole and drawn solid.
       //    `focus: []` → nothing dimmed, a full-brightness orientation. Solidifying every
       //    node auto-solidifies the edges (both endpoints revealed). This is the "shape of
-      //    SQL" beat; §2 switches scenes to the ERD, so this scene never re-ghosts. ──
+      //    SQL" beat; §3 switches scenes to the ERD, so this scene never re-ghosts. ──
       id: 'the-shape',
       heading: 'The shape of SQL',
       scene: 'sql-landscape',
@@ -71,7 +113,7 @@ export const schema: Course = {
       ],
     },
     {
-      // ── §2 the relational model (SOLID TOUR opener for `schema-erd`): the whole ERD drawn
+      // ── §3 the relational model (SOLID TOUR opener for `schema-erd`): the whole ERD drawn
       //    solid and framed whole (`focus: []` → nothing dimmed). Every later section rides this
       //    same scene, so nothing re-ghosts — each just lights its own band. ──
       id: 'relational-model',
@@ -106,8 +148,7 @@ export const schema: Course = {
               kind: 'solidify',
               ids: [
                 'erd-ddl', 'erd-create-table', 'erd-alter-table', 'erd-drop-table', 'erd-truncate', 'erd-rename', 'erd-create-index', 'erd-create-view',
-                'customers', 'cust-id', 'cust-name', 'cust-email', 'cust-created',
-                'orders', 'ord-id', 'ord-customer', 'ord-total', 'ord-status', 'ord-created',
+                'customers', 'orders',
                 'constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default',
                 'view', 'index',
               ],
@@ -117,8 +158,8 @@ export const schema: Course = {
       ],
     },
     {
-      // ── §3 anatomy of one table — focus defaults to the customers band → camera frames it,
-      //    lights it, dims everything else (already solid from §2). ──
+      // ── §4 anatomy of one table — focus defaults to the customers band → camera frames it,
+      //    lights it, dims everything else (already solid from §3). ──
       id: 'the-table',
       heading: 'Anatomy of a table',
       scene: 'schema-erd',
@@ -145,12 +186,12 @@ export const schema: Course = {
       beats: [
         {
           line: "Let's zoom into a single table, customers, and take it apart. Reading across the top, a table is defined by its columns — and every column has two things: a name, and a data type. Here id is a bigint, name and email are text, and created_at is a timestamp with time zone. That type isn't decoration; it's a contract the database enforces. Reading down, each row is one record — one actual customer — carrying a value for every column. If you try to insert a row whose values don't match the declared types — a word where a number belongs — the database refuses it outright. That's the quiet power of types: they decide what can be stored, how two values compare to each other, and even how much space each value takes on disk. A good rule is to pick the narrowest type that comfortably fits your data — it both protects the data from bad values and makes scans faster, because there's less to read. A single well-defined table is already useful — but the real power of the relational model shows up the moment two tables connect.",
-          delta: [{ kind: 'solidify', ids: ['customers', 'cust-id', 'cust-name', 'cust-email', 'cust-created'] }],
+          delta: [{ kind: 'solidify', ids: ['customers'] }],
         },
       ],
     },
     {
-      // ── §4 keys — light BOTH tables so the FK link (auto-solid since §2) reads as the focal
+      // ── §5 keys — light BOTH tables so the FK link (auto-solid since §3) reads as the focal
       //    relationship; the narration + drawn edge carry "keys". ──
       id: 'keys',
       heading: 'Keys: identity & relationships',
@@ -181,18 +222,62 @@ export const schema: Course = {
           delta: [
             {
               kind: 'solidify',
-              ids: ['customers', 'cust-id', 'cust-name', 'cust-email', 'cust-created', 'orders', 'ord-id', 'ord-customer', 'ord-total', 'ord-status', 'ord-created'],
+              ids: ['customers', 'orders'],
             },
           ],
         },
       ],
     },
     {
-      // ── §5 constraints — focus the Constraints panel (its own band) so the camera frames the
-      //    rules directly. ──
+      // ── §6 normalization (DETOUR — scene switch to `normalization`, so it enters fully solid;
+      //    solid-tour, focus: [] frames the whole scene). The systematic cure for the §1 pains:
+      //    split tables so each fact lives once. Depends on keys (§5), pays off §1, precedes DDL.
+      //    §7 returns to `schema-erd` (re-solidifies it). ──
+      id: 'normalization',
+      heading: 'Normalization',
+      scene: 'normalization',
+      focus: [],
+      slide: {
+        title: 'Normalization: one fact, one place',
+        body: [
+          'Normalization is the discipline that removes the **§1 pains** *by construction* — you split tables until every fact lives in exactly **one** place.',
+          '',
+          "> *The key, the whole key, and nothing but the key.*",
+          '',
+          '### The forms, each fixing one flaw',
+          '- **1NF** — **atomic cells**: no repeating groups (split `Pen, Pencil` into rows)',
+          '- **2NF** — **the whole key**: no attribute depends on *part* of a composite key',
+          '- **3NF** — **nothing but the key**: no non-key depends on another non-key (`city` on `zip`)',
+          '- **BCNF** — the strict finish: *every* determinant must be a candidate key',
+          '',
+          '### Why bother',
+          '- Each fact stored once → no duplication, no update anomaly, no drift',
+          '- The shape enforces integrity; the database does the bookkeeping, not you',
+          '',
+          'Applied to that flat sheet, the forms yield exactly the `customers ─< orders` model — which is what we build next.',
+        ].join('\n'),
+      },
+      beats: [
+        {
+          line: "Remember the flat spreadsheet from the very start, and all the pain it caused — the same customer copied on every row, drifting out of sync? Normalization is the discipline that removes that pain systematically, and it's the reason the relational model works. The idea is simple: keep splitting your tables until every single fact is stored in exactly one place. There are four levels, and each one fixes a specific flaw. First normal form just says every cell must hold one atomic value — no lists jammed into a field. Look at orders_raw: the products column holds Pen, Pencil in a single cell. First normal form splits that into separate rows. Second normal form says no column may depend on only part of a composite key. Once we're keying line items by order plus product, the customer's name clearly depends on the order alone, not the product — a partial dependency — so we pull the customer out into its own table. Third normal form says no non-key column may depend on another non-key column. Here city depends on zip, which isn't a key — a transitive dependency — so zip and city move into their own little lookup table. There's a mnemonic that captures the first three perfectly: every non-key column must depend on the key, the whole key, and nothing but the key. Boyce-Codd normal form is the strict finish: it demands that every determinant — anything that decides another column's value — must itself be a candidate key. It only differs from third normal form in tricky cases with overlapping candidate keys, but the spirit is the same. And here's the payoff: apply these forms to that one messy sheet and you don't get something abstract — you get exactly the customers, orders, and related tables we've been designing all along. Normalization isn't extra theory; it's the reason the shape is the shape.",
+          delta: [
+            {
+              kind: 'solidify',
+              ids: ['nf-forms', 'nf-raw', 'nf-customers', 'nf-zipcodes', 'nf-orders', 'nf-items'],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      // ── §7 constraints (RE-ENTRY — scene switches back to `schema-erd`, so re-solidify it;
+      //    focus the Constraints panel so the camera frames the rules directly). ──
       id: 'constraints',
       heading: 'Constraints: rules the DB enforces',
       scene: 'schema-erd',
+      // re-entry from the normalization detour: schema-erd reset to ghost, so the delta below
+      // re-solidifies the WHOLE scene; focus keeps the camera on the Constraints band.
+      focus: ['constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default'],
       slide: {
         title: 'Constraints: rules the DB enforces',
         body: [
@@ -216,12 +301,22 @@ export const schema: Course = {
       beats: [
         {
           line: "Constraints are how you hand your business rules to the database and let it enforce them for you, on every single write, forever. The core ones are simple. NOT NULL means a column is required — you can't leave it blank. UNIQUE means no two rows can share that value; we put it on email so two customers can't register the same address. CHECK lets you write an actual condition every row must satisfy — like total must be greater than zero, so a negative order is impossible. And DEFAULT supplies a value automatically when you don't provide one, which is how created_at can fill itself in with the current time. Here's the nice part: the keys you just met are really constraints too. A primary key is just UNIQUE plus NOT NULL bundled together, and a foreign key is a constraint that says this value must match a real parent row. Why push all of this down into the schema instead of checking it in your application code? Because it's enforced once, in one place — so every application, every query, every developer gets exactly the same guarantee, and bad data is turned away at the door rather than discovered months later when a report breaks. With the shape of our data defined and the rules locked in, we're ready to write the DDL that actually creates it all.",
-          delta: [{ kind: 'solidify', ids: ['constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default'] }],
+          delta: [
+            {
+              kind: 'solidify',
+              ids: [
+                'erd-ddl', 'erd-create-table', 'erd-alter-table', 'erd-drop-table', 'erd-truncate', 'erd-rename', 'erd-create-index', 'erd-create-view',
+                'customers', 'orders',
+                'constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default',
+                'view', 'index',
+              ],
+            },
+          ],
         },
       ],
     },
     {
-      // ── §6 DDL — focus the DDL band: the verbs that write this schema into the catalog. ──
+      // ── §8 DDL — focus the DDL band: the verbs that write this schema into the catalog. ──
       id: 'ddl',
       heading: 'DDL: the verbs that build the schema',
       scene: 'schema-erd',
@@ -254,8 +349,8 @@ export const schema: Course = {
       ],
     },
     {
-      // ── §7 views & indexes — focus the two derived catalog objects (their edges to the tables
-      //    are already solid from §2). ──
+      // ── §9 views & indexes — focus the two derived catalog objects (their edges to the tables
+      //    are already solid from §7's re-entry). ──
       id: 'views-indexes',
       heading: 'Views & indexes',
       scene: 'schema-erd',
@@ -285,9 +380,9 @@ export const schema: Course = {
       ],
     },
     {
-      // ── §8 you-are-here — RETURN to the master map (scene switch resets it, so re-solidify all
+      // ── §10 you-are-here — RETURN to the master map (scene switch resets it, so re-solidify all
       //    72 nodes to redraw the full map) and focus the two bands this course filled in: DDL +
-      //    Catalog light, the other six dim. A bookend to §1, handing off to Course 2. ──
+      //    Catalog light, the other six dim. A bookend to §2, handing off to Course 2. ──
       id: 'you-are-here',
       heading: 'You are here',
       scene: 'sql-landscape',
