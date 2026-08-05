@@ -154,7 +154,8 @@ export const queries: Course = {
           '',
           '### Filtering rows',
           '- Test each row against a predicate — `total > 0`, `status = \'paid\'`',
-          '- Combine with `AND` / `OR` / `NOT`; `IN`, `BETWEEN`, `LIKE` for sets, ranges, patterns',
+          '- Combine with `AND` / `OR` / `NOT`; `IN` for a set, `BETWEEN` for a range',
+          '- `LIKE \'A%\'` matches a **text pattern** — `%` = any run of chars, `_` = exactly one; `NOT LIKE` inverts, Postgres `ILIKE` ignores case',
           '- Runs before `SELECT`, so it **can’t see a SELECT alias** (that stage hasn’t run yet)',
           '',
           '### NULL — the third truth value',
@@ -170,7 +171,7 @@ export const queries: Course = {
       },
       beats: [
         {
-          line: "After the rows are gathered and joined, WHERE is where you filter them down. It tests every row against a condition — total greater than zero, status equals paid — and keeps only the rows where that condition is true. You build up conditions with AND, OR, and NOT, and reach for IN to test a set of values, BETWEEN for a range, and LIKE for a text pattern. Remember from the pipeline that WHERE runs early — before SELECT — which is why you can't refer to a column alias you invented in SELECT; that stage simply hasn't happened yet. Now the part that trips everyone up: NULL. SQL logic isn't two-valued, it's three-valued — a condition can be true, false, or unknown. And the moment NULL is involved, you get unknown. total equals NULL is not false, it's unknown, so the row is dropped — and crucially, total equals NULL is never true even when the value really is null. That's why you never write equals NULL; you write IS NULL or IS NOT NULL, which are the only operators that actually test for it. Finally, keep WHERE and HAVING straight: WHERE filters individual rows here, near the start, while HAVING filters whole groups much later, after grouping. Speaking of which — with our rows filtered, the next stage collapses them into groups: GROUP BY.",
+          line: "After the rows are gathered and joined, WHERE is where you filter them down. It tests every row against a condition — total greater than zero, status equals paid — and keeps only the rows where that condition is true. You build up conditions with AND, OR, and NOT, and reach for IN to test a set of values and BETWEEN for a range. And when you need to match text by shape rather than exactly, that's LIKE: the pattern 'A percent' finds every name starting with A, where percent stands for any run of characters and underscore for exactly one character. NOT LIKE inverts it, and Postgres adds ILIKE for a case-insensitive match. Remember from the pipeline that WHERE runs early — before SELECT — which is why you can't refer to a column alias you invented in SELECT; that stage simply hasn't happened yet. Now the part that trips everyone up: NULL. SQL logic isn't two-valued, it's three-valued — a condition can be true, false, or unknown. And the moment NULL is involved, you get unknown. total equals NULL is not false, it's unknown, so the row is dropped — and crucially, total equals NULL is never true even when the value really is null. That's why you never write equals NULL; you write IS NULL or IS NOT NULL, which are the only operators that actually test for it. Finally, keep WHERE and HAVING straight: WHERE filters individual rows here, near the start, while HAVING filters whole groups much later, after grouping. Speaking of which — with our rows filtered, the next stage collapses them into groups: GROUP BY.",
           delta: [
             {
               kind: 'solidify',
@@ -283,6 +284,7 @@ export const queries: Course = {
           '',
           '### SELECT — choose the output',
           '- Pick **columns**, compute **expressions** (`price * qty`), call functions',
+          '- Handle NULLs in the output with **`COALESCE(phone, \'—\')`** — returns the first non-NULL, left → right',
           '- `SELECT *` takes every column; name them explicitly in real queries',
           '- An **alias** (`AS total`) is *created here* — so `WHERE` can’t see it, but `ORDER BY` (later) can',
           '',
@@ -294,12 +296,11 @@ export const queries: Course = {
           '### Why the order matters',
           '- `SELECT` runs after `WHERE`/`GROUP BY` — that’s why its aliases aren’t available upstream',
           '',
-          'With columns chosen and duplicates gone, the last two stages arrange the result — `ORDER BY`, `LIMIT`.',
         ].join('\n'),
       },
       beats: [
         {
-          line: "SELECT is the word you write first, but by now you know it runs almost last — only after FROM gathered the rows, WHERE filtered them, and GROUP BY collapsed them does SELECT finally get to choose what comes out. Its job is projection: picking which columns to return, and computing expressions from them — price times quantity, a concatenated name, a function call. SELECT star is the shortcut that grabs every column, which is fine when you're exploring but something you'll almost always spell out explicitly in real queries. This is also where aliases are born: when you write AS total, that name total comes into existence right here, at the SELECT stage. And that single fact explains the alias rule that trips people up — WHERE ran earlier, so it can't see total, but ORDER BY runs later, so it can. The stage is the whole explanation. Once SELECT has produced its columns, DISTINCT steps in to remove duplicate rows — rows that are identical across every column you selected. Notice the ordering: DISTINCT runs after SELECT, so it dedupes the projected result, not the original rows — change which columns you select and you change what counts as a duplicate. Postgres adds a sharper tool, DISTINCT ON, which keeps just the first row for each value of a column you name — handy for grabbing the latest order per customer. So SELECT chooses the columns and DISTINCT removes the repeats. All that's left is to arrange the result: sorting it, and taking the top few — ORDER BY and LIMIT.",
+          line: "SELECT is the word you write first, but by now you know it runs almost last — only after FROM gathered the rows, WHERE filtered them, and GROUP BY collapsed them does SELECT finally get to choose what comes out. Its job is projection: picking which columns to return, and computing expressions from them — price times quantity, a concatenated name, a function call. SELECT star is the shortcut that grabs every column, which is fine when you're exploring but something you'll almost always spell out explicitly in real queries. This is also the natural place to clean up NULLs in the output: COALESCE walks a list of values left to right and returns the first one that isn't null, so COALESCE of phone comma a dash shows the phone number when it exists and a dash when it doesn't. This is also where aliases are born: when you write AS total, that name total comes into existence right here, at the SELECT stage. And that single fact explains the alias rule that trips people up — WHERE ran earlier, so it can't see total, but ORDER BY runs later, so it can. The stage is the whole explanation. Once SELECT has produced its columns, DISTINCT steps in to remove duplicate rows — rows that are identical across every column you selected. Notice the ordering: DISTINCT runs after SELECT, so it dedupes the projected result, not the original rows — change which columns you select and you change what counts as a duplicate. Postgres adds a sharper tool, DISTINCT ON, which keeps just the first row for each value of a column you name — handy for grabbing the latest order per customer. So SELECT chooses the columns and DISTINCT removes the repeats. All that's left is to arrange the result: sorting it, and taking the top few — ORDER BY and LIMIT.",
           delta: [
             {
               kind: 'solidify',
