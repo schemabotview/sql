@@ -149,7 +149,7 @@ export const schema: Course = {
               ids: [
                 'erd-ddl', 'erd-create-table', 'erd-alter-table', 'erd-drop-table', 'erd-truncate', 'erd-rename', 'erd-create-index', 'erd-create-view',
                 'customers', 'orders',
-                'constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default',
+                'constraints',
                 'view', 'index',
               ],
             },
@@ -277,7 +277,7 @@ export const schema: Course = {
       scene: 'schema-erd',
       // re-entry from the normalization detour: schema-erd reset to ghost, so the delta below
       // re-solidifies the WHOLE scene; focus keeps the camera on the Constraints band.
-      focus: ['constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default'],
+      focus: ['constraints'],
       slide: {
         title: 'Constraints: rules the DB enforces',
         body: [
@@ -307,7 +307,7 @@ export const schema: Course = {
               ids: [
                 'erd-ddl', 'erd-create-table', 'erd-alter-table', 'erd-drop-table', 'erd-truncate', 'erd-rename', 'erd-create-index', 'erd-create-view',
                 'customers', 'orders',
-                'constraints', 'cn-pk', 'cn-fk', 'cn-notnull', 'cn-unique', 'cn-check', 'cn-default',
+                'constraints',
                 'view', 'index',
               ],
             },

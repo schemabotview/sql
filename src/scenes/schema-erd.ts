@@ -28,7 +28,7 @@ export const schemaErd: SceneSpec = {
   canvas: { width: 1680, height: 1300 },
   // 3 rows so the two tables get a SHORT row (0.9) and hug their content, while DDL keeps its
   // height by spanning rows 0–1; row 1 is the edge-routing gap down to the view/index in row 2.
-  grid: { cols: [0.9, 1.15, 1.15], rows: [0.9, 0.5, 0.85], gap: 0.35, padding: 0.5 },
+  grid: { cols: [0.9, 1.15, 1.15], rows: [0.9, 0.5, 0.65], gap: 0.35, padding: 0.5 },
   nodes: [
     // ── DDL — the verbs that build the schema (tall, left) ──
     {
@@ -72,18 +72,19 @@ export const schemaErd: SceneSpec = {
       ],
     },
 
-    // ── Constraints — rules the DB enforces (below DDL) ──
+    // ── Constraints — a `constraints.sql` cheatsheet card (each rule + a short comment), below
+    //    DDL. A code card (vs six empty name-boxes) reads as real SQL and stays informative when
+    //    §7 zooms it; the slide carries the fuller explanation. ──
     {
-      id: 'constraints', label: 'Constraints · rules the DB enforces', kind: 'container', color: TEAL, cell: [0, 2],
-      layout: { cols: [1, 1, 1], rows: [1, 1], gap: 0.26, padding: 0.5 },
-      children: [
-        { id: 'cn-pk', label: 'PRIMARY KEY', kind: 'term', color: TEAL, cell: [0, 0] },
-        { id: 'cn-fk', label: 'FOREIGN KEY', kind: 'term', color: TEAL, cell: [1, 0] },
-        { id: 'cn-notnull', label: 'NOT NULL', kind: 'term', color: TEAL, cell: [2, 0] },
-        { id: 'cn-unique', label: 'UNIQUE', kind: 'term', color: TEAL, cell: [0, 1] },
-        { id: 'cn-check', label: 'CHECK', kind: 'term', color: TEAL, cell: [1, 1] },
-        { id: 'cn-default', label: 'DEFAULT', kind: 'term', color: TEAL, cell: [2, 1] },
-      ],
+      id: 'constraints', kind: 'code', color: TEAL, filename: 'constraints.sql', cell: [0, 2],
+      label: [
+        'PRIMARY KEY   -- unique + not null',
+        'FOREIGN KEY   -- matches a parent row',
+        'NOT NULL      -- value required',
+        'UNIQUE        -- no duplicates',
+        'CHECK         -- a rule per row',
+        'DEFAULT       -- auto-filled value',
+      ].join('\n'),
     },
 
     // ── derived catalog objects: a view (under customers) + an index (under orders) ──
