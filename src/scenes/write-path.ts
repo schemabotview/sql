@@ -62,7 +62,7 @@ export const writePath: SceneSpec = {
     // ── band: who & what-else — access control (DCL) + server-side logic (programmatic) ──
     {
       id: 'wp-control', label: 'Who may write · and server-side logic', kind: 'container', color: GRAY, cell: [0, 3],
-      layout: { cols: [1, 1.6], rows: 1, gap: 0.4, padding: 0.5 },
+      layout: { cols: [1, 1.6], rows: 1, gap: 0.2, padding: 0.1 },
       children: [
         {
           id: 'wp-dcl', label: 'Access control · DCL', kind: 'container', color: RED, cell: [0, 0],
