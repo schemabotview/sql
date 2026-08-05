@@ -166,7 +166,6 @@ export const queries: Course = {
           '### WHERE vs HAVING',
           '- **WHERE** filters individual **rows**, here, early — **HAVING** filters **groups**, later',
           '',
-          'Filtered rows in hand, the next stage collapses them into groups — `GROUP BY`.',
         ].join('\n'),
       },
       beats: [
