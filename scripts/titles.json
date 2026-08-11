@@ -1,0 +1,8 @@
+{
+  "_comment": "Display titles for published videos (YouTube title + thumbnail + description header). Keyed by course id. Falls back to the course's own title (from the registry) when absent. Used by gen-descriptions.mjs; thumb.mjs reads it too to drop its --title flag. Edit these to the YouTube-facing titles you want.",
+  "schema": "SQL: Modeling Data",
+  "queries": "SQL: Reading Data",
+  "mutations": "SQL: Changing Data Safely",
+  "engine": "SQL: Under the Hood",
+  "capstone": "SQL: End-to-End Project"
+}
