@@ -14,7 +14,7 @@ import { type SceneSpec, BLUE, TEAL, GREEN, RED } from 'reveal-engine'
 export const btree: SceneSpec = {
   id: 'btree',
   title: 'Inside a B-tree index',
-  canvas: { width: 1480, height: 880 },
+  canvas: { width: 1080, height: 880 },
   grid: { cols: 1, rows: [1.5, 0.5, 0.5], gap: 0.36, padding: 0.4 },
   nodes: [
     // ── the tree: Root → Branch → Leaf, three levels on a 4-column grid ──

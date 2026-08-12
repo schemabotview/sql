@@ -11,7 +11,7 @@ import { type SceneSpec, PURPLE, GREEN, TEAL, GRAY } from 'reveal-engine'
 export const mvcc: SceneSpec = {
   id: 'mvcc',
   title: 'MVCC · versions & snapshots',
-  canvas: { width: 1640, height: 1000 },
+  canvas: { width: 1240, height: 1000 },
   grid: { cols: 1, rows: [0.85, 0.8, 0.72], gap: 0.4, padding: 0.4 },
   nodes: [
     // ── the version chain: one logical row, two physical versions ──
