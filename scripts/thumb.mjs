@@ -59,8 +59,9 @@ const LOGO_CANDIDATES = [
 const LOGO_SVG = LOGO_CANDIDATES.find(existsSync) ?? null
 
 // The right-side panel gradient (brand block). Single default for this concept; override per-thumb
-// with --panel. Blue reads well against the Zed-slate scene on the left.
-const DEFAULT_PANEL_BG = 'radial-gradient(118% 104% at 70% 34%, #5b8cff 0%, #2f4a94 46%, #16203f 100%)'
+// with --panel. Teal/cyan distinguishes SQL from the other concepts in the catalog and reads well
+// against the Zed-slate scene on the left; white text stays high-contrast.
+const DEFAULT_PANEL_BG = 'radial-gradient(118% 104% at 70% 34%, #34e0d0 0%, #0e8f9e 44%, #062028 100%)'
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 // A slug → display fallback ("data-structures" → "Data Structures") when the registry lacks it.
 const titleCase = (slug) => slug.split(/[-_]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
