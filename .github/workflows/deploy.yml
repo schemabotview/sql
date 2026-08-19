@@ -1,0 +1,59 @@
+# Build the Vite app and deploy it to GitHub Pages on every push to main. The site is served at
+# graphl.in/<repo>/ — the apex custom domain is inherited from the org's schemabotview.github.io
+# Pages site, and each app sets its own vite `base` to that subpath for the production build.
+#
+# This app consumes the sibling `reveal-engine` as SOURCE via a `../reveal-engine` alias (see its
+# vite.config.ts), so CI checks that repo out alongside the app and installs deps in both — mirroring
+# the local dev layout where the two repos sit side by side.
+name: Deploy to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a newer push supersede a queued deploy, but never cancel a run mid-deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Check out the app
+        uses: actions/checkout@v4
+        with:
+          path: app
+      - name: Check out the sibling reveal-engine
+        uses: actions/checkout@v4
+        with:
+          repository: schemabotview/reveal-engine
+          ref: main
+          path: reveal-engine
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install engine deps
+        run: npm ci
+        working-directory: reveal-engine
+      - name: Install app deps
+        run: npm ci
+        working-directory: app
+      - name: Build
+        run: npm run build
+        working-directory: app
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist
+      - id: deploy
+        uses: actions/deploy-pages@v4
