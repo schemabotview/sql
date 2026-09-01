@@ -3,7 +3,8 @@
 > **Status: ALL 5 COURSES COMPLETE 2026-09-01.** 46 sections · 46 scenes · 46 wavs (55.9 min,
 > 154 MB) — 20 table nodes, 12 code cards. `npm run build`, `tsc --noEmit` and `npm run check` all
 > clean. `scripts/audio-manifest.json` generated and cross-checked (46/46 entries have a wav).
-> NOT git-init'd. Remaining downstream work: record.
+> Pushed to `schemabotview/sql` and deployed — live at **graphl.in/sql/**. Remaining downstream
+> work: record.
 > `scripts/titles.json` is this repo's own (curated publish titles), not the scaffold source's.
 
 The **SQL** concept app of GraphL. Workspace-wide invariants, content model, and working agreement
