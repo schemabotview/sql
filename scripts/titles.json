@@ -1,0 +1,8 @@
+{
+  "_comment": "Curated publish titles (YouTube title + thumbnail header) per course, keyed by course id. An override for the registry's in-app narrative course.title — wire into gen-descriptions.mjs / thumb.mjs when the app is scaffolded and the publish step should use these. Preserved from the retired central capture/ recorder; sql is not scaffolded yet.",
+  "schema": "SQL Data Modeling",
+  "queries": "SQL Queries",
+  "mutations": "SQL Transactions",
+  "engine": "SQL Internals",
+  "capstone": "SQL Project"
+}

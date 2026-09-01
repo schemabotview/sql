@@ -1,0 +1,40 @@
+{
+  "name": "sql",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "SQL content repo for GraphL \u2014 authors scenes (react-flow diagrams / code snippets) per section, renders them full-frame, and captures screenshots + coords for the compose pipeline. Bundles the render-engine (layout + patterns) as src/render-engine.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "check": "node scripts/check-content.mjs",
+    "preview": "vite preview",
+    "build:snapshot": "vite build --outDir dist-snapshot",
+    "capture": "vite preview --outDir dist-snapshot --port 5181",
+    "capture:shots": "node scripts/capture-shots.mjs",
+    "record": "node scripts/record-course.mjs",
+    "record:reels": "node scripts/record-reels.mjs",
+    "shots:4k": "node scripts/shots-4k.mjs",
+    "gen:audio": "node scripts/gen-audio-manifest.mjs",
+    "gen:desc": "node scripts/gen-descriptions.mjs",
+    "thumb": "node scripts/thumb.mjs"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@xyflow/react": "12.11.3",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "puppeteer": "^25.3.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5"
+  }
+}
