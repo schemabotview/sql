@@ -93,9 +93,14 @@ function compose({ course, chapters, series }) {
   const headline = publishTitle(course)
   L.push(headline.toLowerCase().startsWith(CONCEPT.toLowerCase()) ? headline : `${headline} · ${CONCEPT}`)
   L.push(RULE)
+  // NB: this used to claim "the diagram assembles top-to-bottom as the narration walks through each
+  // idea" — boilerplate inherited from the graphl-studio reveal-engine, where a camera really did
+  // build a scene up beat by beat. THIS engine draws each scene SOLID (see record-course.mjs: "no
+  // reveal fold, no seek/transition/pan machinery"), so nothing assembles and the sentence described
+  // a video that does not exist. Same wrong line is still in the other concept repos' copies.
   L.push(
-    `Part of GraphL's ${CONCEPT} series — the diagram assembles top-to-bottom as the narration walks ` +
-    `through each idea, so the picture and the words land together.`,
+    `Part of GraphL's ${CONCEPT} series — every section pairs one diagram with the idea it explains, ` +
+    `so the picture and the words land together.`,
   )
   L.push(RULE)
   L.push('⏱ CHAPTERS')
