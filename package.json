@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "SQL content repo for GraphL \u2014 authors scenes (react-flow diagrams / code snippets) per section, renders them full-frame, and captures screenshots + coords for the compose pipeline. The render engine is the @graphlearning/flow package.",
+  "description": "SQL content repo for GraphL — authors scenes (react-flow diagrams / code snippets) per section, renders them full-frame, and captures screenshots + coords for the compose pipeline. The render engine is the @graphlearning/flow package.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -20,7 +20,7 @@
     "thumb": "node scripts/thumb.mjs"
   },
   "dependencies": {
-    "@graphlearning/flow": "^0.4.0",
+    "@graphlearning/flow": "^0.5.0",
     "@xyflow/react": "12.11.3",
     "lucide-react": "^1.28.0",
     "react": "^19.2.0",
