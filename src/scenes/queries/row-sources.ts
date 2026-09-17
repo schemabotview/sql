@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 row-sources — FROM is where rows COME FROM, so the four sources are the foundation and the
 // working set is what gets built on them. Subqueries and CTEs belong here rather than in a course of

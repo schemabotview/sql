@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 the-transfer — the example the narration actually speaks, with the numbers on screen. A
 // transaction is invisible when it works, so what makes it teachable is the pair of states either

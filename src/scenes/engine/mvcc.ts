@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 mvcc — the best fit for the table node in the whole concept. MVCC is invisible unless you can
 // see the versions, so the top band IS the versions: one logical row, two physical tuples, with the

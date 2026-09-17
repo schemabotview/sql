@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 query-journey — the course's orientation board. Three courses in, the reader can design, read
 // and change data; this one answers what the database DOES with a statement, and the three bands are

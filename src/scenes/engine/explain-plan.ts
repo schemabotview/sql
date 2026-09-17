@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 explain-plan — a CODE card, and this one is REQUIRED rather than chosen: the slide says "the
 // plan above" and the narration reads the Index Cond line aloud, so the scene has to be an actual

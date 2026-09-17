@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §6 cap-report — step 5, and the payoff for two earlier sections at once. The CTE is the first

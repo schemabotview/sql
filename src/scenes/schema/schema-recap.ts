@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §10 schema-recap — the bookend. The studio repo re-rode the §2 master map here and let the camera
 // light the finished corner; with no camera that would just be §2 again, so this is a different

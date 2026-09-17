@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 derived-objects — views and indexes are the two catalog objects DERIVED from the tables, and
 // the section's honest framing is that neither is new data. A view is a query with a name; an index

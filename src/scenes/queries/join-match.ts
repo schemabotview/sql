@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 join-match — the worked example the narration actually speaks, now drawn as the two relations
 // it is talking about rather than described in card subs. Ann has two orders, Bob one, Cat none:

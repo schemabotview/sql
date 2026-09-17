@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { writeMachinery } from './write-machinery'
 import { insertForms } from './insert-forms'
 import { updateBeforeAfter } from './update-before-after'

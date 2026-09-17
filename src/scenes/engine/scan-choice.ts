@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 scan-choice — the section exists to kill a wrong belief: that adding an index makes a query use
 // it. The top band is the actual rule (selectivity, not existence), the middle explains why an index

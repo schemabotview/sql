@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 insert-forms — a CODE card, because the section's claim IS the forms: one row, many rows, and
 // the result of a query. A diagram of INSERT would be a box labelled INSERT. The band below carries

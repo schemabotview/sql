@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 window-vs-group — the section is defined by a contrast, so the contrast leads, and now it is
 // SHOWN rather than claimed: the same four orders, aggregated two ways. The GROUP BY table has two

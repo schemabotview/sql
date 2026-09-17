@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Home, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react'
-import { SceneView } from '../render-engine'
+import { SceneView } from '@graphlearning/flow'
 import type { Section } from '../content'
 import { getScene } from '../scenes'
 import { SlidePanel } from './SlidePanel'

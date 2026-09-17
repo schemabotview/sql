@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §1 project-plan — the brief. No new SQL in this course, so the board is the PLAN: the six steps,

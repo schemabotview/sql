@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 isolation-dial — anomalies only exist because transactions OVERLAP, so the board opens on the
 // interleave the narration walks through: T1 reads 5, T2 commits 8, T1 reads again and gets 8. The

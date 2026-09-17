@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { queryJourney } from './query-journey'
 import { thePlanner } from './the-planner'
 import { explainPlan } from './explain-plan'

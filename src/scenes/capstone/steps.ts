@@ -1,4 +1,4 @@
-import type { SceneNode } from '../../render-engine'
+import type { SceneNode } from '@graphlearning/flow'
 
 // The shared six-step strip that sits at the top of EVERY capstone scene.
 //

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 engine-recap — the fourth bookend, same grammar as the other three, and the one where the map
 // finally has no dark region left. The third band is the handoff: the capstone is a different KIND of

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 where-filter — the predicates are the easy half; the narration spends most of its length on
 // NULL, so the board does too. The second band is the actual rule that catches people: WHERE keeps a

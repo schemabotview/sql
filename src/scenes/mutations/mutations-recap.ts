@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §10 mutations-recap — the third bookend, same grammar as `schema-recap` and `queries-recap` so the
 // three read as one running map. The difference this time is the bottom band: three of the four

@@ -1,10 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import '@xyflow/react/dist/style.css'
-// Self-hosted fonts → deterministic text metrics, so screenshots are identical across machines.
-import '@fontsource/ibm-plex-sans/400.css'
-import '@fontsource/ibm-plex-sans/600.css'
-import '@fontsource/ibm-plex-mono/400.css'
+// The engine's stylesheet contract in one import: react-flow's stylesheet plus the self-hosted IBM
+// Plex faces its layout is calibrated to. Owned by @graphlearning/flow so a content repo cannot
+// forget it.
+import '@graphlearning/flow/styles.css'
 import './index.css'
 import { App } from './App'
 

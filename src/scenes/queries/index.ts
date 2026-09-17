@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { logicalOrder } from './logical-order'
 import { rowSources } from './row-sources'
 import { joinMatch } from './join-match'

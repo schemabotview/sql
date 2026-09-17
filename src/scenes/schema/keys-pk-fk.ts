@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 keys-pk-fk — the link itself, at COLUMN level. §3 drew the relationship between two tables;
 // the constraint is finer than that, so here the two cards ARE the columns and the arrow between

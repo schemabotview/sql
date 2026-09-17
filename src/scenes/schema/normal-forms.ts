@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 normal-forms — the discipline that removes §1's pains BY CONSTRUCTION. Drawn as a passage, not
 // a list: the problem at the top, the four forms as the instrument, the guarantee at the bottom. The

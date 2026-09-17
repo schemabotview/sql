@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §7 cap-optimize — step 6, and the section's point is the PROOF, not the index. Both EXPLAINs sit

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 server-side-logic — a CODE card, because a trigger IS code and a diagram of one is a box with
 // the word "trigger" in it. The example is the classic the narration names: an audit row written

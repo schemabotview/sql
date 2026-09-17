@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 projection — a CODE card, and the one place in this course where that is clearly right: the
 // section's claim is about WHICH LINE a name comes into existence on, so the lines have to be on

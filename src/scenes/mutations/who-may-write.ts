@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 who-may-write — being able to write and being allowed to are different things. The board goes
 // privilege → role → principle, which is the order the narration argues it: what the verbs are, why

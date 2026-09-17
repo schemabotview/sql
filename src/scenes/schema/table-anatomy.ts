@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 table-anatomy — zoom into ONE table. §3 showed why tables relate; this shows what a table is
 // made of, and the two bands are the two ways to look at the same relation: its SHAPE (the columns,

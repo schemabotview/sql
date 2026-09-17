@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 delete-and-merge — two verbs on one board. DELETE vs TRUNCATE is a contrast, so it leads as a
 // pair; MERGE is a reconciliation, so it is drawn as the two relations being reconciled. Row 101

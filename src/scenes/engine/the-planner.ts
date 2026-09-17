@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 the-planner — SQL is declarative, so something has to decide the HOW. The board goes pipeline →
 // principle → failure mode, which is the order the narration argues it: the five stages a statement

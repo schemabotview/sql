@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 write-machinery — the course's orientation board. Reading is forgiving and writing is not, so
 // SQL wraps every change in layers: the verbs at the top, the transaction they run inside, and the

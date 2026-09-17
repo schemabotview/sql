@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §10 queries-recap — the bookend, deliberately built to the same grammar as `schema-recap`: a tile
 // band of what is now done over a card band of what the map still holds. The two courses rhyme, so

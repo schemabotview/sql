@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §2 cap-model — step 1. The project's real DDL, carrying every rule course 1 taught in one

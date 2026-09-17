@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §5 cap-analyze — step 4, and the first scene in the concept to pair a query with the rows it

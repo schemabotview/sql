@@ -4,10 +4,8 @@ The **SQL** concept app for [GraphL](https://graphl.in). One section = a left **
 diagram or code snippet) + a right **slide** (markdown) + a **narration** script, rendered
 responsively (4K capture · laptop web app · mobile) and captured to video.
 
-> **Status: scaffolded (slice 0, 2026-09-01).** The app runs — shell, render-engine, section view and
-> capture scripts are all in place. Content so far is one placeholder section; the five courses port
-> in one slice at a time from `~/graphl-studio/sql` (spine + 56 min of generated narration), with
-> slides enriched from `~/Workspace/sql-ct`.
+> **Status: complete.** Five courses, 46 sections, each with its narration wav. The render engine is
+> the [`@graphlearning/flow`](https://www.npmjs.com/package/@graphlearning/flow) package.
 
 Workspace-wide model, pipeline, and conventions: see the workspace [`README.md`](../README.md).
 
@@ -25,7 +23,6 @@ Workspace-wide model, pipeline, and conventions: see the workspace [`README.md`]
 
 ```
 src/
-  render-engine/   layout + react-flow / code-snippet renderer (folder, not a package)
   scenes/          hand-authored scenes + registry
   content/         courses → sections (one file per section) + registry
   section/         composited scene-left / slide-right view (responsive)
@@ -41,7 +38,7 @@ scripts/
 ```bash
 npm install
 npm run dev                  # open the printed URL, try #/schema
-npm run build                # tsc + vite build (must stay clean)
+npm run build                # vite build only — NO typecheck; run `npx tsc --noEmit` separately
 npm run record schema        # 4K video → scripts/out/schema.mp4
 npm run record:reels schema  # portrait reels
 ```

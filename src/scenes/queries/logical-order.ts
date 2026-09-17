@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 logical-order — the gap between the order you WRITE and the order the database RUNS is the
 // section's whole claim, so both orders are drawn as rows: scanning down the two bands, the

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 sql-landscape — the whole language on one board, before any syntax. The studio repo drew this
 // as a ~60-node master map that a camera toured; with no camera every node must be legible at once,

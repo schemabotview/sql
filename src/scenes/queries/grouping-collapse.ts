@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 grouping-collapse — grouping is a COLLAPSE, so the board collapses, and now with real result
 // sets: six rows become three grouped rows become two survivors. Drawing each stage as the table it

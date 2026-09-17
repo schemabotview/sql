@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 update-before-after — the clearest use of the table node in the whole concept: the same relation
 // twice, one cell different. UPDATE is defined by what it does to state, so showing the state is the

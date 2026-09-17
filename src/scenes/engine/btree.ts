@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 btree — the one scene in the concept that literally IS its subject: a real tree, laid out by the
 // engine from the edges rather than drawn as a metaphor. Root → branch → leaf is three hops, which is

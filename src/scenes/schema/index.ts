@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { fileVsDatabase } from './file-vs-database'
 import { sqlLandscape } from './sql-landscape'
 import { twoTables } from './two-tables'

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { SceneView } from './render-engine'
+import { SceneView } from '@graphlearning/flow'
 import { getScene } from './scenes'
 import { SectionView } from './section/SectionView'
 import { COURSES, allSections, slugOf } from './content'

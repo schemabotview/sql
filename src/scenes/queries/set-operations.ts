@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 set-operations — the axis contrast leads, because it is the clearest thing anyone can say about
 // set ops and it lands against the join course section students just watched: a join grows the row

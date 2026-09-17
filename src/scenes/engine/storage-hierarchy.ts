@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 storage-hierarchy — the first scene in the concept built on genuine NESTING rather than a flow.
 // The claim is containment: a heap file holds pages, a page holds tuples. A four-card chain would

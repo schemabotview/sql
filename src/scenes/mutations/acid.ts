@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 acid — the four promises, then the turn the narration makes at the end: three of them are
 // absolute and the fourth is a setting. Putting Isolation alone in its own band below is the whole

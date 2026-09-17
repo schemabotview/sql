@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectPlan } from './project-plan'
 import { capModel } from './cap-model'
 import { capSecure } from './cap-secure'

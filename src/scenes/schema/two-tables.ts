@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 two-tables — what *relational* actually means. One table teaches nothing about relations, so
 // this draws the pair and the link: a value in `orders` matching a value in `customers`.

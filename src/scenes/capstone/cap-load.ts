@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §4 cap-load — step 3. The inserts are ordinary; the BEGIN/COMMIT around them is the lesson. Orders

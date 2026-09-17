@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 arrange — the second CODE card, for the same reason as §7: `NULLS LAST` and `LIMIT … OFFSET`
 // are syntax, and a diagram of them would just be the words in boxes. The statement shows the two

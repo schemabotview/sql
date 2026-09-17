@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 ddl-catalog — the course's one CODE card, and the right place for it: DDL is the section where
 // the design finally becomes text you type. The card carries the whole story of §3–§7 in one

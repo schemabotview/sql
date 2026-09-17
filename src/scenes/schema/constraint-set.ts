@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 constraint-set — deliberately NOT an ERD. §3–§5 were about shape; this one is about RULES, so
 // drawing another table diagram would say the wrong thing. Top band: the four rules you declare.

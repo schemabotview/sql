@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 file-vs-database — the cold open. Why a database at all, when a flat file is right there? The
 // top band grants the honest concession (a file IS fine at first) and then names the two pains that

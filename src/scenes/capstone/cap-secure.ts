@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { projectSteps } from './steps'
 
 // §3 cap-secure — step 2, and deliberately BEFORE any data exists. Two roles, each granted only what
