@@ -18,16 +18,11 @@ export const COURSES: Record<string, Course> = {
 
 export type { Course, Section }
 
+// slugOf / allSections are the shell's — the slug rule (`<courseId>-<sectionId>`) is part of the
+// route contract the recorder drives, so it cannot be a per-repo decision. Re-exported here because
+// this module is what the app and the scripts already import them from.
+export { slugOf, allSections } from '@graphlearning/shell'
+
 export function getCourse(id: string): Course | undefined {
   return COURSES[id]
-}
-
-// The slug for a section is `<courseId>-<sectionId>` — section IS the unit (one slide, one
-// narration), so no trailing beat index.
-export function slugOf(course: Course, section: Section): string {
-  return `${course.id}-${section.id}`
-}
-
-export function allSections(course: Course): { section: Section; slug: string }[] {
-  return course.sections.map((section) => ({ section, slug: slugOf(course, section) }))
 }

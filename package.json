@@ -11,16 +11,17 @@
     "preview": "vite preview",
     "build:snapshot": "vite build --outDir dist-snapshot",
     "capture": "vite preview --outDir dist-snapshot --port 5181",
-    "capture:shots": "node scripts/capture-shots.mjs",
-    "record": "node scripts/record-course.mjs",
-    "record:reels": "node scripts/record-reels.mjs",
-    "shots:4k": "node scripts/shots-4k.mjs",
-    "gen:audio": "node scripts/gen-audio-manifest.mjs",
-    "gen:desc": "node scripts/gen-descriptions.mjs",
-    "thumb": "node scripts/thumb.mjs"
+    "capture:shots": "graphl-capture-shots",
+    "record": "graphl-record",
+    "record:reels": "graphl-record-reels",
+    "shots:4k": "graphl-shots-4k",
+    "gen:audio": "graphl-gen-audio",
+    "gen:desc": "graphl-gen-desc",
+    "thumb": "graphl-thumb"
   },
   "dependencies": {
-    "@graphlearning/flow": "^0.5.0",
+    "@graphlearning/flow": "^0.5.1",
+    "@graphlearning/shell": "file:../ui-shell",
     "@xyflow/react": "12.11.3",
     "lucide-react": "^1.28.0",
     "react": "^19.2.0",
@@ -32,6 +33,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.3.4",
+    "esbuild": "^0.25.0",
     "puppeteer": "^25.3.0",
     "typescript": "~5.7.2",
     "vite": "^6.0.5"
