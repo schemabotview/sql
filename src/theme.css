@@ -2,6 +2,6 @@
    Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade. */
 :root {
   --brand: #34e0d0; /* counter tone to --brand: the slide's `###` subheading */
-  --brand-hover: #f7a94f; /* lighter tint of --brand: the eyebrow's hover state */
+  --brand-hover: #5becdf; /* lighter SQL teal — the eyebrow's hover state */
   --accent-2: #f0a35e; /* counter tone to --brand: the slide's `###` subheading */
 }
