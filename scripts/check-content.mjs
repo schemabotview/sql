@@ -170,24 +170,24 @@ for (const file of walk('src/scenes')) {
   }
 }
 
-// --- scenes: icon keys must exist ------------------------------------------------------------
-// NodeIcon resolves `icon` against LUCIDE_ICONS and falls back to the pattern glyph on a miss, so an
-// unregistered name is not an error — it just draws the wrong picture. Registered names are the
-// single source of truth; extending the registry per concept is expected, typos are not.
-// Read EVERY *Icons.ts registry in the engine, not just the lucide one: NodeIcon looks up a named
-// glyph across all of them (aws has AWS_ICONS as well), so hard-coding one file would flag ~360
-// perfectly valid AWS service icons as typos the moment this guard is ported there.
-const known = new Set()
-for (const f of readdirSync('src/render-engine').filter((f) => /Icons\.ts$/.test(f))) {
-  const src = readFileSync(join('src/render-engine', f), 'utf8')
-  const i = src.indexOf('_ICONS')
-  for (const m of (i < 0 ? src : src.slice(i)).matchAll(/^\s{2}([a-zA-Z0-9]+):/gm)) known.add(m[1])
-}
-for (const file of walk('src/scenes')) {
-  for (const [, icon] of readFileSync(file, 'utf8').matchAll(/\bicon: '([^']+)'/g)) {
-    if (!known.has(icon)) problems.push(`${file}  icon '${icon}' is in no *Icons.ts registry — it will silently fall back to the pattern glyph`)
-  }
-}
+// --- scenes: icon keys — GUARD REMOVED, deliberately -------------------------------------------
+// This block read every src/render-engine/*Icons.ts to build the set of valid `icon:` names. The
+// engine extraction deleted that directory, so from then on `npm run check` threw ENOENT here and
+// NOTHING below it ran — the focus guard, the wav guard and the slide-height budget were all dead in
+// this repo while the command still looked like it was doing its job. That is worse than not having
+// the guard, which is why it goes rather than getting a try/catch.
+//
+// It cannot simply be repointed at node_modules/@graphlearning/flow. The published package does not
+// enumerate its keys: dist/lucideIcons.d.ts is `Record<string, LucideIcon>`, and in dist/index.js the
+// registry BINDINGS are minified (LUCIDE_ICONS becomes `ga`) even though the keys survive — so there
+// is no stable anchor to parse against, only a heuristic that would start false-flagging on the next
+// engine build. snowflake reached the same conclusion and dropped the guard first; this matches it so
+// all five repos that carry check-content.mjs behave the same way.
+//
+// What that costs: NodeIcon falls back to the pattern glyph on an unknown key, so a typo still draws
+// the wrong picture silently. Keep icon names honest by eye until the engine exports its key list —
+// one `ICON_KEYS: string[]` export would make this guard both possible and better than it was, since
+// it would read the engine actually installed rather than a local copy that could drift.
 
 // --- content: every `focus` must name a node in that section's scene -------------------------
 // SceneView sets `__focus` by comparing ids, so a focus that matches nothing just fails to light
