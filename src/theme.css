@@ -1,0 +1,11 @@
+/* SQL's design surface — the three tokens @graphlearning/shell leaves to the repo.
+   Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade.
+
+   --brand is PostgreSQL's elephant blue, lifted a step so it holds on the shell's dark surface
+   (#1a1d23); the logo's own #336791 sits too close to it. --accent-2 is its warm counter tone, the
+   slide's `###` subheading, the same inversion the other repos use. */
+:root {
+  --brand: #5b9bd5; /* lifted PostgreSQL blue — eyebrow, links, the catalog card tint */
+  --brand-hover: #7db3e3; /* lighter — the eyebrow's hover state */
+  --accent-2: #f2a65a; /* warm counter tone to --brand: the slide's `###` subheading */
+}
