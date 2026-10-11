@@ -23,6 +23,16 @@ import { caseExpressions } from './retrieval/case-expressions'
 import { orderingPaging } from './retrieval/ordering-paging'
 import { aggregatesGroups } from './retrieval/aggregates-groups'
 import { processingOrder } from './retrieval/processing-order'
+import { joinCardinality } from './combining/join-cardinality'
+import { innerJoins } from './combining/inner-joins'
+import { outerJoins } from './combining/outer-joins'
+import { selfCrossJoins } from './combining/self-cross-joins'
+import { amplification } from './combining/amplification'
+import { subqueries } from './combining/subqueries'
+import { correlated } from './combining/correlated'
+import { existsNotIn } from './combining/exists-not-in'
+import { setOperations } from './combining/set-operations'
+import { views } from './combining/views'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -67,6 +77,17 @@ const ALL: Scene[] = [
   orderingPaging,
   aggregatesGroups,
   processingOrder,
+  // chapter 5 — combining
+  joinCardinality,
+  innerJoins,
+  outerJoins,
+  selfCrossJoins,
+  amplification,
+  subqueries,
+  correlated,
+  existsNotIn,
+  setOperations,
+  views,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

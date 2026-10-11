@@ -6,11 +6,11 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–4 complete — 30 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5, `retrieval` 10/10). Work happens **directly on `main`** (decision of 2026-10-11).
-> `tsc`, `npm run check` (layout + plan conformance), `npm run check:sql` (71 snippets + 3 hidden
-> verification files) and `npm run build` clean; all 30 routes rendered at 1920×1080 inside the
-> density targets. **Next: chapter 5 (`combining`, 10 sections).**
+> **Status: Chapters 1–5 complete — 40 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10). Work happens **directly on `main`**
+> (decision of 2026-10-11). `tsc`, `npm run check` (layout + plan conformance), `npm run check:sql`
+> (106 snippets + 4 hidden verification files) and `npm run build` clean; all 40 routes rendered at
+> 1920×1080 inside the density targets. **Next: chapter 6 (`analytics`, 10 sections).**
 
 ## How the plan maps to the app
 
@@ -197,6 +197,16 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   asserted in `db/verify/ch04-retrieval.sql`.
 - Label engine-specific behaviour as PostgreSQL's (NULL ordering defaults, function names, casts).
 - Tall boards need scene `padding` 0.15 to stay clear of the eyebrow; 0.10 for medium ones.
+
+### Chapter 5 notes
+
+- Same `pair()` boards as chapter 4. A `Scene` needs `edges` even when empty (`edges: []`).
+- Join boards are **result tables with counts**, not drawn lines; the lesson is the grain, so every
+  card states its row count. Plausible-wrong results (wrong join key, amplified sum, `NOT IN` with a
+  `NULL`) are shown as real output, with the cause asserted in `db/verify/ch05-combining.sql`.
+- A view snippet creates its view inside its own rolled-back transaction, so `shop` never gains one.
+- `INTERSECT ALL` / `EXCEPT ALL` are labelled as PostgreSQL's. Boards with four 2-column cards need
+  scene `padding` 0.15 to clear the eyebrow.
 
 ### Known, not a defect
 
