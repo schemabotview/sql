@@ -25,11 +25,20 @@ number the plan does not have, a duplicate, an unknown course. It prints authore
 
 ## Authoring rules (from the README that governs this course — read it, do not paraphrase from memory)
 
-- **Theory-focused.** Teach through annotated examples, contrasting cases, misconceptions and failure
-  walkthroughs. **No assignments, exercises, "try it yourself", installation steps or monitoring** —
-  and never "your turn". A reasoning prompt is fine **if its answer is shown on the same slide**.
-- **Outcomes are reasoning verbs**: explain, interpret, compare, trace, justify. Never claim the
-  learner will be able to *implement*, nor that completing the course shows mastery.
+Synced to the README after its "theory-focused" wording was removed.
+
+- **Explanation and application together.** The role is a lecturer and coach teaching from foundations
+  to advanced understanding and reasoning. Show how something works **and why**, through annotated
+  SQL with its real result, diagrams, worked calculations, execution traces, contrasting cases,
+  misconceptions and failure walkthroughs. Teach **how to construct** a query or a design choice where
+  that fits the section, not only how to read one.
+- **Following along is optional, never required.** A slide may invite the learner to run an example
+  ("follow along"), and the answer is always shown so nothing depends on it. **Not required, so not
+  written as required:** submitted exercises, assessments, graded assignments, learner monitoring,
+  installing a database, "your tasks".
+- **Outcomes**: copy the plan's chapter outcome verbatim into the course `index.ts`. In narration, do
+  **not claim verified individual mastery** — nothing here observes the learner — and do not equate
+  finishing the course with practical competence.
 - **Section shape**: objective → mental model → annotated worked example → misconception or failure
   contrast → reasoning summary. Small input/output tables before complex queries; define a term
   before relying on it; revisit ideas deeper later rather than front-loading them.

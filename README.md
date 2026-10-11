@@ -1,11 +1,11 @@
 # SQL — GraphL concept app
 
-A theory-focused SQL course, from relational foundations to access control, authored from
+A SQL course, from relational foundations to access control, authored from
 [`SQL-COURSE-PLAN.md`](./SQL-COURSE-PLAN.md): **10 chapters, 79 sections**, PostgreSQL as the
 reference engine, one online shop as the recurring example.
 
 Each **section** is one scene (a diagram or an annotated SQL code card), one slide and one narration.
-The course explains and traces; it does not assign work or measure learners. Every result and error
+The course explains, traces and shows how queries and designs are built; following along is optional, and it neither assigns work nor measures learners. Every result and error
 shown is produced by a real PostgreSQL server (see `check:sql`), and the app is held to the plan by
 `check-plan`, which also reports how many of the 79 sections are authored.
 
