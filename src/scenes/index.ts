@@ -43,6 +43,13 @@ import { lagLead } from './analytics/lag-lead'
 import { gapsIslands } from './analytics/gaps-islands'
 import { groupingSets } from './analytics/grouping-sets'
 import { cohorts } from './analytics/cohorts'
+import { baseline } from './performance/baseline'
+import { readPlans } from './performance/read-plans'
+import { estimates } from './performance/estimates'
+import { indexDesign } from './performance/index-design'
+import { indexFriendly } from './performance/index-friendly'
+import { compareAlternatives } from './performance/compare-alternatives'
+import { materializedViews } from './performance/materialized-views'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -109,6 +116,14 @@ const ALL: Scene[] = [
   gapsIslands,
   groupingSets,
   cohorts,
+  // chapter 7 — performance
+  baseline,
+  readPlans,
+  estimates,
+  indexDesign,
+  indexFriendly,
+  compareAlternatives,
+  materializedViews,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

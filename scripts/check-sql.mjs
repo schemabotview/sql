@@ -38,13 +38,13 @@ const fail = (msg) => {
 }
 
 // --- 1. the dataset ---------------------------------------------------------------------------
-const reset = psql(['-f', 'db/schema.sql', '-f', 'db/seed.sql'])
+const reset = psql(['-f', 'db/schema.sql', '-f', 'db/seed.sql', '-f', 'db/perf.sql'])
 if (reset.status !== 0) {
   console.error(reset.stderr || reset.error?.message)
   console.error('✗ could not build the dataset — is a PostgreSQL server reachable via the PG* variables?')
   process.exit(1)
 }
-console.log('✓ db/schema.sql + db/seed.sql load')
+console.log('✓ db/schema.sql + db/seed.sql + db/perf.sql load')
 
 // --- 2. assertions ----------------------------------------------------------------------------
 const asserts = psql(['-f', 'db/assertions.sql'])

@@ -42,3 +42,28 @@ export const grid = (id: string, label: string, cols: number, children: SceneNod
   cols,
   children,
 })
+
+// Chapter 7: a SQL card and the EXPLAIN output it really produced, shown as plan-text cards (filename
+// `.txt`, so check:sql does not run them). Plan shapes and row counts are asserted in
+// db/verify/ch07-performance.sql; long condition lines are omitted from the display, never rewritten.
+export interface PlanOut {
+  file: string
+  lines: string[]
+}
+
+export function planPair(o: { id: string; title: string; file: string; sql: string[]; plans: PlanOut[]; outs?: Out[] }): SceneNode {
+  const q = `q-${o.id}`
+  const children: SceneNode[] = [{ id: q, kind: 'code', filename: o.file, hug: true, label: o.sql.join('\n') }]
+  const edges: SceneEdge[] = []
+  o.plans.forEach((p, i) => {
+    const id = `p-${o.id}-${i}`
+    children.push({ id, kind: 'code', filename: p.file, hug: true, label: p.lines.join('\n') })
+    edges.push({ source: q, target: id })
+  })
+  ;(o.outs ?? []).forEach((r, i) => {
+    const id = `r-${o.id}-${i}`
+    children.push({ id, kind: 'table', label: r.label, pattern: r.pattern ?? 'service', headers: r.headers, values: r.values })
+    edges.push({ source: q, target: id })
+  })
+  return { id: `g-${o.id}`, label: o.title, pattern: 'group', icon: 'none', cols: 1, children, edges }
+}

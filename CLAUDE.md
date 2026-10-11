@@ -6,12 +6,13 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–6 complete — 50 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10). Work happens
-> **directly on `main`** (decision of 2026-10-11). `tsc`, `npm run check` (layout + plan conformance),
-> `npm run check:sql` (124 snippets + 5 hidden verification files) and `npm run build` clean; all 50
-> routes rendered at 1920×1080 inside the density targets. **Next: chapter 7 (`performance`, 7
-> sections).**
+> **Status: Chapters 1–7 complete — 57 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10, `performance` 7/7).
+> Work happens **directly on `main`** (decision of 2026-10-11). `tsc`, `npm run check:sql` (137
+> snippets + 6 hidden verification files) and `npm run build` clean; `npm run check` (layout + plan
+> conformance) is clean for authored content, and additionally reports the **narration-wav gate**
+> for courses whose audio is still being generated (see the audio note below). All 57 routes rendered
+> at 1920×1080 inside the density targets. **Next: chapter 8 (`modification`, 8 sections).**
 
 ## How the plan maps to the app
 
@@ -221,6 +222,29 @@ for described ones; code lines **under 64 columns** with `hug: true`.
 - Array comparisons in `db/verify` need matching types (`count(*)` is `bigint`, so cast the literal).
 - A tall CTE card beside a tile chain works as `flow: 'LR'` with `cols: 1` stages; four-card boards need
   scene `padding` 0.15 to clear the eyebrow.
+
+### Chapter 7 notes
+
+- **Second schema `perf`** (`db/perf.sql`, loaded by `check:sql` and `npm run db:reset`): 2 000
+  `big_customers`, 20 000 `big_orders`, generated from arithmetic (no `random()`) and small enough
+  that `ANALYZE` reads every row, so row estimates repeat. `shop` stays frozen; only §7's materialized
+  view uses it.
+- **Measures are exact counts** (rows examined = returned + `Rows Removed by Filter`, heap pages, index
+  bytes) and **plan shapes** — never timings. Plan text on a board is real `EXPLAIN` output with long
+  `Cond` lines omitted (never reworded), shown in `planPair()` cards (`.txt` filenames, so `check:sql`
+  does not run them). Shapes and counts are asserted in `db/verify/ch07-performance.sql` through
+  `EXPLAIN (FORMAT JSON)`; plans are labelled as what PostgreSQL 16 chose on this data.
+- **Keep `perf.big_orders` clean:** a rolled-back `UPDATE` still leaves dead tuples and grows the heap
+  (148 pages becomes 149+), changing later plans. Destructive demos run on `big_customers` or on a
+  `CREATE TABLE … AS` copy.
+- Non-leading composite columns are a **cost decision, not a rule** (the 2-day range scans, the 7-day
+  range uses the index); the slide says "planner decides". Avoid index-only-scan claims — they depend on
+  the visibility map and are not repeatable.
+- A result group (`cols: 1` container) beside a code card keeps four result tables stacked; `pair()`
+  fans them out horizontally and makes the board wide and short.
+- **Audio gate:** `check-content` requires `public/audio/<course>/<id>.wav` for every section of a
+  course once that course has one wav. `structures` 4–9 currently lack theirs; that is the audio
+  pipeline, not authoring.
 
 ### Known, not a defect
 
