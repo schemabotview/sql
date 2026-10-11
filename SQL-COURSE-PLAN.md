@@ -2,11 +2,11 @@
 
 ## Audience and prerequisites
 
-For beginners with basic computer literacy; no prior SQL, programming, or database experience is required. This is a theory-focused course with annotated SQL, result tables, worked examples, and failure walkthroughs. A database installation, submitted exercises, assessments, and learner monitoring are not required.
+For beginners with basic computer literacy; no prior SQL, programming, or database experience is required. Concepts are taught through concrete SQL queries and their results, annotated explanations, worked examples, and failure walkthroughs. Learners may run the queries alongside the explanation if they wish. A database installation, submitted exercises, assessments, and learner monitoring are not required.
 
 Scope: relational foundations, schema design, data loading, query semantics and analysis, performance reasoning, modifications, transactions, and access control. PostgreSQL 18 is the reference dialect for concrete explanations; implementation-specific behaviour is labelled rather than presented as universal SQL.
 
-Target: explain relational designs, interpret SQL and its results, analyse common errors, and justify query, transaction, and access-control decisions. The course supports advanced understanding; it does not certify implementation competence or production expertise.
+Target: understand how to design relational structures, construct SQL queries, interpret results, analyse common errors, and justify transaction, performance, and access-control decisions. Step-by-step query and schema examples connect explanations to application; individual learner performance is not assessed.
 
 Structure: **10 chapters**, with section counts of **6, 9, 5, 10, 10, 10, 7, 8, 8, and 6**. Counts follow conceptual scope, not a quota; sections need not have equal teaching duration.
 
@@ -16,7 +16,7 @@ Understand relational data → define structures → populate them → retrieve 
 
 The spine follows a database's lifecycle. A lecturer develops one online shop with customers, products, orders, and order items. Each chapter explains the next decision using the schema and data already introduced; contrasting cases reveal where an apparently sensible approach fails.
 
-Teaching method: objective → mental model → annotated worked example → misconception or failure contrast → reasoning summary → bridge. Use small input/output tables before complex queries, explain technical terms before relying on them, and revisit concepts at greater depth. Transaction safeguards accompany modification examples before the deeper concurrency chapter. Examples illustrate application; no learner submission or performance measurement is required.
+Teaching method: objective → mental model → worked SQL query/schema and its results → misconception or failure contrast → explanation summary → bridge. Use small input/output tables before complex queries, explain technical terms before relying on them, and revisit concepts at greater depth. Transaction safeguards accompany modification examples before the deeper concurrency chapter. Examples illustrate application; no learner submission or performance measurement is required.
 
 ## Chapter 1 — Database and SQL Foundations
 
@@ -28,6 +28,8 @@ Objective: Explain relational data and the basic form and context of SQL stateme
 4. Data types, missing information, and NULL
 5. SQL statement structure: identifiers, literals, comments, and statement families
 6. Client/server interaction, dialects, and an annotated shop-database tour
+
+Worked illustrations: An annotated SQL statement; a client/server diagram; small customer and order tables showing keys, relationships, and NULL. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
 
 Outcome: Explain tables, keys, NULL, basic statement syntax, and the distinction between a database server, a client, and SQL dialects.
 
@@ -47,6 +49,8 @@ Objective: Explain how business rules become relational structures and enforceab
 8. Evolve structures with ALTER TABLE
 9. Remove structures and data: DROP and TRUNCATE
 
+Worked illustrations: CREATE TABLE and ALTER TABLE examples; contrasting normalised schemas; accepted and rejected records; a metadata query and its result. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
+
 Outcome: Interpret the shop schema, explain dependencies and normalisation choices, and predict whether example records satisfy its constraints.
 
 Bridge: The schema expresses the business rules but has no useful records; next we populate and validate it.
@@ -60,6 +64,8 @@ Objective: Trace how records enter a database and why some loads produce incorre
 3. Understand constraint failures and load related tables in dependency order
 4. Import external data and validate the load
 5. Worked case: explain loading and reconciliation of the shop dataset
+
+Worked illustrations: INSERT examples with defaults and generated identifiers; source-file and loaded-row comparisons; a rejected-record and reconciliation walkthrough. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
 
 Outcome: Trace insertion and loading examples, explain rejected rows, and compare source records with the illustrated loaded dataset.
 
@@ -80,6 +86,8 @@ Objective: Explain single-table query results through expressions, NULL semantic
 9. Aggregate functions, GROUP BY, and HAVING
 10. Logical query-processing order versus physical execution; incorrect-summary walkthrough
 
+Worked illustrations: SELECT queries paired with input and result tables; NULL truth tables; CASE and date calculations; contrasting WHERE and HAVING results. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
+
 Outcome: Interpret query outputs and explain mistakes involving duplicate rows, NULL, type conversion, ordering, or aggregation.
 
 Bridge: Single-table reports reveal only part of the business story; next we connect related records and query results.
@@ -98,6 +106,8 @@ Objective: Reason about combined result sets and reusable query interfaces.
 8. EXISTS, NOT EXISTS, and NULL pitfalls
 9. UNION, INTERSECT, and EXCEPT: duplicate handling and ALL variants where supported
 10. Views as reusable query interfaces: definition, abstraction, and updateability limits
+
+Worked illustrations: Join diagrams and query outputs showing matching, unmatched, and duplicated rows; EXISTS versus NOT IN cases; a view definition and its use. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
 
 Outcome: Predict join and subquery outputs, explain cardinality errors and duplicate semantics, and compare a view with its underlying query.
 
@@ -118,6 +128,8 @@ Objective: Explain multi-step analyses, recursive relationships, window calculat
 9. Advanced summaries with GROUPING SETS, ROLLUP, and CUBE
 10. Cohort analysis: define populations, time periods, and metrics
 
+Worked illustrations: CTE and recursive-query walkthroughs; window-frame result comparisons; running totals, ranking, subtotals, and a cohort calculation with explicit definitions. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
+
 Outcome: Explain how query stages, recursion, grouping sets, and window definitions determine analytical results and their limitations.
 
 Bridge: The analysis produces the right answer; next we investigate the work required to produce it and improve performance with evidence.
@@ -133,6 +145,8 @@ Objective: Interpret query-cost evidence and explain the trade-offs behind perfo
 5. Recognise index-friendly predicates and unnecessary work
 6. Compare alternatives using annotated measurements and read/write trade-offs
 7. Materialized views: stored results, refresh, and freshness/performance trade-offs
+
+Worked illustrations: Annotated execution plans and supplied before/after measurements; CREATE INDEX examples; composite-index alternatives; a materialized-view refresh and freshness scenario. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
 
 Outcome: Interpret an annotated plan and before/after measurements, explain plausible bottlenecks, and compare indexing or stored-summary trade-offs.
 
@@ -151,6 +165,8 @@ Objective: Reason about targeted changes, synchronisation, and their side effect
 7. Understand cascades, triggers, and bulk-change side effects
 8. Worked case: explain cleaning and synchronisation decisions
 
+Worked illustrations: UPDATE, DELETE, and INSERT … SELECT with before/after records; an annotated rollback; contrasting upsert and MERGE scenarios; cascade and trigger side effects. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
+
 Outcome: Predict before/after records, explain rollback and synchronisation cases, and distinguish upsert, MERGE, cascades, and trigger side effects.
 
 Bridge: A change can be correct in isolation yet fail as part of a larger operation or race another user; next we study transaction boundaries and concurrency.
@@ -168,6 +184,8 @@ Objective: Explain how transaction boundaries and concurrency controls protect b
 7. Diagnose deadlocks and design retries
 8. Worked timelines: concurrent purchases and inventory consistency
 
+Worked illustrations: Two-session SQL timelines showing visibility, blocking, and anomalies; a deadlock sequence; transaction and retry pseudocode for inventory changes. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
+
 Outcome: Trace concurrent transaction timelines and justify a consistency requirement, an isolation choice, and the need for transaction retries under stated assumptions.
 
 Bridge: Operations now have explicit consistency guarantees; next we control who may perform them and integrate the full lifecycle.
@@ -182,6 +200,8 @@ Objective: Explain access boundaries and connect the complete database lifecycle
 4. Restrict data exposure with views and row-level policies
 5. Parameterised query values, identifier boundaries, and appropriate application privileges
 6. Integrated narrated case: explain the shop database from design to controlled access
+
+Worked illustrations: GRANT/REVOKE examples and a permission matrix; a view and row-policy comparison; parameterised-query examples; an integrated shop-database walkthrough. Explain assumptions, construction, expected behaviour, and limitations step by step; running the examples is optional.
 
 Outcome: Interpret a permission matrix, explain query parameterisation boundaries, and justify design choices throughout the narrated shop case.
 
