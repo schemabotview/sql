@@ -6,11 +6,12 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–5 complete — 40 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10). Work happens **directly on `main`**
-> (decision of 2026-10-11). `tsc`, `npm run check` (layout + plan conformance), `npm run check:sql`
-> (106 snippets + 4 hidden verification files) and `npm run build` clean; all 40 routes rendered at
-> 1920×1080 inside the density targets. **Next: chapter 6 (`analytics`, 10 sections).**
+> **Status: Chapters 1–6 complete — 50 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10). Work happens
+> **directly on `main`** (decision of 2026-10-11). `tsc`, `npm run check` (layout + plan conformance),
+> `npm run check:sql` (124 snippets + 5 hidden verification files) and `npm run build` clean; all 50
+> routes rendered at 1920×1080 inside the density targets. **Next: chapter 7 (`performance`, 7
+> sections).**
 
 ## How the plan maps to the app
 
@@ -206,6 +207,19 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   `NULL`) are shown as real output, with the cause asserted in `db/verify/ch05-combining.sql`.
 - A view snippet creates its view inside its own rolled-back transaction, so `shop` never gains one.
 - `INTERSECT ALL` / `EXCEPT ALL` are labelled as PostgreSQL's. Boards with four 2-column cards need
+  scene `padding` 0.15 to clear the eyebrow.
+
+### Chapter 6 notes
+
+- Everything runs on the frozen `shop` schema; **no second schema was needed** (order dates give the
+  time series, `employees`/`categories` the hierarchies, signup months the cohorts).
+- Window results must be **deterministic**: add tie-breaking keys to `row_number()` and `ORDER BY` the
+  output, or a displayed table can change between runs. A snippet may build a throwaway edge list with
+  `VALUES` inside the CTE (the cycle card) instead of creating a table.
+- Never call a `ROWS` frame a "3-day" average; the dates have gaps. Cohort definitions (population,
+  period, metric, exclusions) sit **beside** the numbers; customer 9 ordered before signing up.
+- Array comparisons in `db/verify` need matching types (`count(*)` is `bigint`, so cast the literal).
+- A tall CTE card beside a tile chain works as `flow: 'LR'` with `cols: 1` stages; four-card boards need
   scene `padding` 0.15 to clear the eyebrow.
 
 ### Known, not a defect

@@ -33,6 +33,16 @@ import { correlated } from './combining/correlated'
 import { existsNotIn } from './combining/exists-not-in'
 import { setOperations } from './combining/set-operations'
 import { views } from './combining/views'
+import { cteSteps } from './analytics/cte-steps'
+import { recursive } from './analytics/recursive'
+import { windowPartitions } from './analytics/window-partitions'
+import { windowFrames } from './analytics/window-frames'
+import { rankingTopN } from './analytics/ranking-top-n'
+import { runningAverages } from './analytics/running-averages'
+import { lagLead } from './analytics/lag-lead'
+import { gapsIslands } from './analytics/gaps-islands'
+import { groupingSets } from './analytics/grouping-sets'
+import { cohorts } from './analytics/cohorts'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -88,6 +98,17 @@ const ALL: Scene[] = [
   existsNotIn,
   setOperations,
   views,
+  // chapter 6 — analytics
+  cteSteps,
+  recursive,
+  windowPartitions,
+  windowFrames,
+  rankingTopN,
+  runningAverages,
+  lagLead,
+  gapsIslands,
+  groupingSets,
+  cohorts,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))
