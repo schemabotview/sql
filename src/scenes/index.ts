@@ -13,6 +13,16 @@ import { defaultsIdsOptional } from './loading/defaults-ids-optional'
 import { loadOrder } from './loading/load-order'
 import { copyValidate } from './loading/copy-validate'
 import { reconciliation } from './loading/reconciliation'
+import { selectGrain } from './retrieval/select-grain'
+import { whereFilters } from './retrieval/where-filters'
+import { inBetweenLike } from './retrieval/in-between-like'
+import { nullLogic } from './retrieval/null-logic'
+import { arithmeticCasts } from './retrieval/arithmetic-casts'
+import { functions } from './retrieval/functions'
+import { caseExpressions } from './retrieval/case-expressions'
+import { orderingPaging } from './retrieval/ordering-paging'
+import { aggregatesGroups } from './retrieval/aggregates-groups'
+import { processingOrder } from './retrieval/processing-order'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -46,6 +56,17 @@ const ALL: Scene[] = [
   loadOrder,
   copyValidate,
   reconciliation,
+  // chapter 4 — retrieval
+  selectGrain,
+  whereFilters,
+  inBetweenLike,
+  nullLogic,
+  arithmeticCasts,
+  functions,
+  caseExpressions,
+  orderingPaging,
+  aggregatesGroups,
+  processingOrder,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

@@ -6,11 +6,11 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–3 complete — 20 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
-> `npm run check` (layout + plan conformance), `npm run check:sql` (43 snippets + 2 hidden
-> verification files) and `npm run build` clean; all 20 routes rendered at 1920×1080 inside the
-> density targets. **Next: chapter 4 (`retrieval`, 10 sections).**
+> **Status: Chapters 1–4 complete — 30 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5, `retrieval` 10/10). Work happens **directly on `main`** (decision of 2026-10-11).
+> `tsc`, `npm run check` (layout + plan conformance), `npm run check:sql` (71 snippets + 3 hidden
+> verification files) and `npm run build` clean; all 30 routes rendered at 1920×1080 inside the
+> density targets. **Next: chapter 5 (`combining`, 10 sections).**
 
 ## How the plan maps to the app
 
@@ -187,6 +187,16 @@ for described ones; code lines **under 64 columns** with `hug: true`.
 - Seed ids free for lessons: category 7, products 11+, customers 10+, orders 12+, payments 9+.
 - A long code card (25 lines) next to a result column works as a `flow: 'LR'` scene (`reconciliation`);
   shorten the **widest line** first — one 70-character line made the whole card shrink.
+
+### Chapter 4 notes
+
+- `src/scenes/pair.ts` offers `pair({id,title,file,sql,outs,err})` (a `.sql` code card feeding result
+  tables or an error tile) and `grid(...)`. Its node ids are generated, so **no `focus` may target
+  them**; spell ids out in scenes that need `focus`.
+- Claims no snippet can show (grain 11/4 and 9/8, NULLs sort last ascending, 8 distinct people) are
+  asserted in `db/verify/ch04-retrieval.sql`.
+- Label engine-specific behaviour as PostgreSQL's (NULL ordering defaults, function names, casts).
+- Tall boards need scene `padding` 0.15 to stay clear of the eyebrow; 0.10 for medium ones.
 
 ### Known, not a defect
 
