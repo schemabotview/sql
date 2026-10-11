@@ -1,4 +1,13 @@
 import type { Scene } from '@graphlearning/flow'
+import { requirementsStructures } from './structures/requirements-structures'
+import { normaliseSplit } from './structures/normalise-split'
+import { schemaHierarchy } from './structures/schema-hierarchy'
+import { typesDefaults as typesDefaultsDdl } from './structures/types-defaults'
+import { keysWishlist } from './structures/keys-wishlist'
+import { constraintGuards } from './structures/constraint-guards'
+import { metadataQueries } from './structures/metadata-queries'
+import { alterBeforeAfter } from './structures/alter-before-after'
+import { dropTruncate } from './structures/drop-truncate'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -16,6 +25,16 @@ const ALL: Scene[] = [
   typesAndNull,
   statementAnatomy,
   clientServerTour,
+  // chapter 2 — structures
+  requirementsStructures,
+  normaliseSplit,
+  schemaHierarchy,
+  typesDefaultsDdl,
+  keysWishlist,
+  constraintGuards,
+  metadataQueries,
+  alterBeforeAfter,
+  dropTruncate,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

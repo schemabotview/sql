@@ -7,6 +7,10 @@
 //   3. run every CODE node whose `filename` ends in .sql, each in a transaction that is rolled back,
 //      so a snippet that deletes rows cannot change what the next one sees
 //
+// Claims a snippet cannot show (which rule rejects which record, what a failed statement left
+// behind) are asserted in db/verify/*.sql: each file is run in a rolled-back transaction and must
+// finish without raising. They are the hidden half of a section's evidence.
+//
 // A snippet that is MEANT to fail (a constraint violation, a permission error) says so on its first
 // line with `-- expect-error`, and then must fail. A snippet that is shown but cannot run alone
 // (psql meta-commands, two-session demos) is simply not given a .sql filename.
@@ -46,6 +50,19 @@ console.log('✓ db/schema.sql + db/seed.sql load')
 const asserts = psql(['-f', 'db/assertions.sql'])
 if (asserts.status !== 0) fail(`db/assertions.sql: ${asserts.stderr.trim()}`)
 else console.log('✓ db/assertions.sql — the dataset still has the properties the lessons rely on')
+
+// --- 2b. hidden verifications ----------------------------------------------------------------
+import { readdirSync, readFileSync, existsSync } from 'node:fs'
+let verified = 0
+if (existsSync('db/verify')) {
+  for (const f of readdirSync('db/verify').filter((f) => f.endsWith('.sql')).sort()) {
+    const body = readFileSync(join('db/verify', f), 'utf8')
+    const r = psql([], `BEGIN;\nSET search_path = shop;\n${body}\n;ROLLBACK;\n`)
+    if (r.status !== 0) fail(`db/verify/${f}: ${r.stderr.trim().split('\n').slice(0, 2).join(' ')}`)
+    else verified++
+  }
+}
+console.log(`✓ ${verified} db/verify file(s) hold`)
 
 // --- 3. snippets ------------------------------------------------------------------------------
 // Scenes are TypeScript, so bundle the registry with esbuild and import the result.

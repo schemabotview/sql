@@ -6,10 +6,11 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapter 1 complete — 6 of 79 sections authored** (`foundations`). Restarted 2026-10-11
-> against the refined plan; the first attempt was discarded. `tsc`, `npm run check` (layout + plan
-> conformance), `npm run check:sql` (12 snippets) and `npm run build` clean; all 6 routes rendered at
-> 1920×1080 inside the density targets. **Next: chapter 2 (`structures`, 9 sections).**
+> **Status: Chapters 1 and 2 complete — 15 of 79 sections authored** (`foundations` 6/6,
+> `structures` 9/9). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
+> `npm run check` (layout + plan conformance), `npm run check:sql` (31 snippets + hidden
+> verifications) and `npm run build` clean; all 15 routes rendered at 1920×1080 inside the density
+> targets. **Next: chapter 3 (`loading`, 5 sections).**
 
 ## How the plan maps to the app
 
@@ -95,6 +96,12 @@ that cannot run alone (psql meta-commands, two-session timelines) gets a non-`.s
 result table and error shown on a slide must be what the server really returned — check it, never
 type it from memory.
 
+**Hidden verifications — `db/verify/*.sql`.** Some claims no displayed snippet can show (which rule rejects
+which record, what a rolled-back `TRUNCATE` restored). Assert them there: each file runs in a
+rolled-back transaction and must finish without raising; use `DO` blocks with `ASSERT` and
+`BEGIN … EXCEPTION WHEN <condition> THEN NULL; END` to prove a statement is refused. They are the
+hidden half of a section's evidence — check that the guard fails when you break one.
+
 Snippet rules: **a script stops at its first error**, so what happens *after* a failure cannot be
 inside an `-- expect-error` snippet (show the error; verify the consequence by hand and say so; use
 `SAVEPOINT … ROLLBACK TO` to show rollback without an error). `COPY … FROM STDIN` works inline
@@ -155,6 +162,17 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   cards in a grid (`types-and-null`), **token table + contrast cards** (`statement-anatomy`).
 - A table node is a *data dictionary* when it has `headers`/`values`, and a *schema* when it has
   `columns` — use `columns` only for real column lists with keys.
+
+### Chapter 2 notes
+
+- The running example from §4 to §9 is a **`wishlist`** table (which customer wants which product), a
+  small extension of the shop: created bare, typed, keyed, constrained, altered, dropped. The full
+  8-table `shop` schema is **read** (metadata, §7), not re-created.
+- A snippet may create a table the shop does not have (`wishlist`, `tag`, `note`): it is rolled back,
+  so the frozen `shop` schema never changes.
+- A board that needs an edge to land on a chip inside a heading-bearing container should be laid out
+  **left to right** in columns (`requirements-structures`): the edges run horizontally between columns
+  and never cross a heading.
 
 ### Known, not a defect
 
