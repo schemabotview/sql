@@ -25,7 +25,7 @@ number the plan does not have, a duplicate, an unknown course. It prints authore
 
 ## Authoring rules (from the README that governs this course — read it, do not paraphrase from memory)
 
-Synced to the README after its "theory-focused" wording was removed.
+Synced to the README and to the plan after both dropped the "theory-focused" wording.
 
 - **Explanation and application together.** The role is a lecturer and coach teaching from foundations
   to advanced understanding and reasoning. Show how something works **and why**, through annotated
@@ -36,12 +36,20 @@ Synced to the README after its "theory-focused" wording was removed.
   ("follow along"), and the answer is always shown so nothing depends on it. **Not required, so not
   written as required:** submitted exercises, assessments, graded assignments, learner monitoring,
   installing a database, "your tasks".
+- **Target** (plan, audience paragraph): understand how to design relational structures, construct SQL
+  queries, interpret results, analyse common errors, and justify transaction, performance and
+  access-control decisions. Learners "may run the queries alongside the explanation if they wish".
 - **Outcomes**: copy the plan's chapter outcome verbatim into the course `index.ts`. In narration, do
   **not claim verified individual mastery** — nothing here observes the learner — and do not equate
   finishing the course with practical competence.
-- **Section shape**: objective → mental model → annotated worked example → misconception or failure
-  contrast → reasoning summary. Small input/output tables before complex queries; define a term
-  before relying on it; revisit ideas deeper later rather than front-loading them.
+- **Section shape** (the plan's *Teaching method*): objective → mental model → **worked SQL query or
+  schema and its results** → misconception or failure contrast → **explanation summary** → bridge.
+  Small input/output tables before complex queries; define a term before relying on it; revisit ideas
+  deeper later rather than front-loading them. Explain **assumptions, construction, expected
+  behaviour and limitations** step by step — the plan asks for all four.
+- **Each chapter lists its "Worked illustrations"** in the plan (one line per chapter). Treat that line
+  as the minimum set of boards/cards the chapter must contain, and copy it into the course's
+  `index.ts` beside the objective, outcome and bridge.
 - **Safety and failure awareness arrive when the operation first does**: the first `UPDATE`, `DELETE`,
   `DROP`, `COPY` carries its rollback / affected-rows / validation note; chapter 9 deepens, not
   introduces.
