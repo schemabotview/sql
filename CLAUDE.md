@@ -6,11 +6,11 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1 and 2 complete — 15 of 79 sections authored** (`foundations` 6/6,
-> `structures` 9/9). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
-> `npm run check` (layout + plan conformance), `npm run check:sql` (31 snippets + hidden
-> verifications) and `npm run build` clean; all 15 routes rendered at 1920×1080 inside the density
-> targets. **Next: chapter 3 (`loading`, 5 sections).**
+> **Status: Chapters 1–3 complete — 20 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
+> `npm run check` (layout + plan conformance), `npm run check:sql` (43 snippets + 2 hidden
+> verification files) and `npm run build` clean; all 20 routes rendered at 1920×1080 inside the
+> density targets. **Next: chapter 4 (`retrieval`, 10 sections).**
 
 ## How the plan maps to the app
 
@@ -173,6 +173,20 @@ for described ones; code lines **under 64 columns** with `hug: true`.
 - A board that needs an edge to land on a chip inside a heading-bearing container should be laid out
   **left to right** in columns (`requirements-structures`): the edges run horizontally between columns
   and never cross a heading.
+
+### Chapter 3 notes
+
+- DML returns no rows, so a board shows **command tags, `RETURNING` output, or a follow-up `SELECT`**.
+- **A script stops at its first error**, so what a failed statement left behind (all-or-nothing, an
+  undone identity number) is asserted in `db/verify/ch03-loading.sql` with
+  `BEGIN … EXCEPTION WHEN … THEN NULL; END`, and the slide says it was checked.
+- **Identity numbers survive a rollback** (ids 1 and 3), so a snippet that shows ids must say why.
+- **`COPY … FROM STDIN` works inline** in a snippet (data lines, then `\.`), so imports need no file.
+- A **staging table of `text` columns** lets a bad row be classified instead of refused — the
+  reconciliation case (`6 = 3 loaded + 3 rejected`) is built on it.
+- Seed ids free for lessons: category 7, products 11+, customers 10+, orders 12+, payments 9+.
+- A long code card (25 lines) next to a result column works as a `flow: 'LR'` scene (`reconciliation`);
+  shorten the **widest line** first — one 70-character line made the whole card shrink.
 
 ### Known, not a defect
 

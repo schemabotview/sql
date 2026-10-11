@@ -1,5 +1,6 @@
 import { foundations } from './foundations'
 import { structures } from './structures'
+import { loading } from './loading'
 import type { Course, Section } from './types'
 
 // The course catalog, in syllabus order. The syllabus is SQL-COURSE-PLAN.md (10 chapters, 79
@@ -17,10 +18,11 @@ import type { Course, Section } from './types'
 //   transactions  9  Transactions and Concurrency                     (8)
 //   access        10 Access Control and Integrated Reasoning          (6)
 //
-// 15 of 79 sections authored: chapters 1 and 2 complete.
+// 20 of 79 sections authored: chapters 1, 2 and 3 complete.
 export const COURSES: Record<string, Course> = {
   [foundations.id]: foundations,
   [structures.id]: structures,
+  [loading.id]: loading,
 }
 
 export type { Course, Section }

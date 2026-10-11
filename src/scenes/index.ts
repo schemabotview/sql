@@ -8,6 +8,11 @@ import { constraintGuards } from './structures/constraint-guards'
 import { metadataQueries } from './structures/metadata-queries'
 import { alterBeforeAfter } from './structures/alter-before-after'
 import { dropTruncate } from './structures/drop-truncate'
+import { insertRows } from './loading/insert-rows'
+import { defaultsIdsOptional } from './loading/defaults-ids-optional'
+import { loadOrder } from './loading/load-order'
+import { copyValidate } from './loading/copy-validate'
+import { reconciliation } from './loading/reconciliation'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -35,6 +40,12 @@ const ALL: Scene[] = [
   metadataQueries,
   alterBeforeAfter,
   dropTruncate,
+  // chapter 3 — loading
+  insertRows,
+  defaultsIdsOptional,
+  loadOrder,
+  copyValidate,
+  reconciliation,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))
