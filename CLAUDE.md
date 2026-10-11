@@ -6,9 +6,10 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: restarted 2026-10-11 against the refined plan. 0 of 79 sections authored.** Scaffold,
-> dataset and guards are in place (restored from the first attempt, which was discarded). Authoring
-> proceeds chapter by chapter in plan order.
+> **Status: Chapter 1 complete — 6 of 79 sections authored** (`foundations`). Restarted 2026-10-11
+> against the refined plan; the first attempt was discarded. `tsc`, `npm run check` (layout + plan
+> conformance), `npm run check:sql` (12 snippets) and `npm run build` clean; all 6 routes rendered at
+> 1920×1080 inside the density targets. **Next: chapter 2 (`structures`, 9 sections).**
 
 ## How the plan maps to the app
 
@@ -143,6 +144,17 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   longest real line.
 - **Never build node ids in a helper** (`` id: `o${n}` ``): `check-content.mjs` finds `focus` targets by
   literal `id: '…'` text. Spell the id out at the call.
+
+### Chapter 1 notes (for the chapters that follow)
+
+- Only the **four core tables** (customers, products, orders, order items) appear in chapter 1, with key
+  columns only and the board saying so; `categories`, `employees`, `payments`, `reviews` arrive when a
+  chapter needs them. Chapter 2 shows each table in full.
+- Boards shown here for later reuse: **fork** (two parallel columns, `dbms-vs-files`), **schema board**
+  with PK/FK badges laid out **LR in ranks** so no edge skips a rank (`key-integrity`), **query → result**
+  cards in a grid (`types-and-null`), **token table + contrast cards** (`statement-anatomy`).
+- A table node is a *data dictionary* when it has `headers`/`values`, and a *schema* when it has
+  `columns` — use `columns` only for real column lists with keys.
 
 ### Known, not a defect
 
