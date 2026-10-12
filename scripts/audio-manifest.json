@@ -1,5 +1,5 @@
 {
-  "count": 65,
+  "count": 79,
   "entries": [
     {
       "course": "foundations",
@@ -390,6 +390,90 @@
       "section": "cleaning-case",
       "file": "modification/cleaning-case.wav",
       "narration": "This worked case puts the chapter together. Customers three and nine are the same person, Chloe Martin in Lyon. The evidence card finds both records by name and city. The decisions table writes down what we will do and why: keep customer three, who signed up first, move order eleven to that customer, delete customer nine afterwards, and keep the option to roll back until we have checked. The order of the steps matters. Deleting customer nine first would be refused by the foreign key, because order eleven still points at it. So the repair updates the order, then deletes the duplicate: update one, delete one. Finally we reconcile. Customers fall from nine to eight, orders stay at eleven, customer three now has two orders, and no order is left without a customer. Those are the counts a reviewer would check. Notice also that merging fixes a data quirk from chapter six, an order that predated its customer's signup. A change can be correct in isolation yet fail as part of a larger operation or race another user; next we study transaction boundaries and concurrency."
+    },
+    {
+      "course": "transactions",
+      "section": "invariants-acid",
+      "file": "transactions/invariants-acid.wav",
+      "narration": "A business invariant is a rule that must hold every time, such as stock is never negative, or an order never exists without its lines. A constraint guards one row, while a transaction guards a sequence of statements. The table lists three invariants and what enforces each. Now the example. Placing an order for product nine takes three steps: insert the order, insert its line, and decrement the stock. Product nine has no stock, so the third statement is refused by the check constraint, and the error card shows it. Because the three statements are one transaction, the first two are undone as well. A hidden test confirms that no order twelve remains. The acid table maps the four letters onto this example: atomicity is all or nothing, consistency means the constraints hold before and after, isolation means other sessions never see a half-done order, and durability means committed work survives a crash. We state durability but do not demonstrate it. Each statement being safe does not make the sequence safe; the transaction boundary does."
+    },
+    {
+      "course": "transactions",
+      "section": "begin-commit-savepoints",
+      "file": "transactions/begin-commit-savepoints.wav",
+      "narration": "A transaction begins with begin and ends with commit, which keeps every change, or rollback, which discards them. The first card is a real transcript from a session. We insert an order and a line, then the stock update is refused by the check constraint. The next select, which is perfectly valid, also fails: the transaction is aborted, and every later statement is ignored until rollback. After rollback, a count shows order twelve does not exist. So an error does not just skip one statement; it poisons the transaction. A savepoint lets us undo part of the work. In the second card we insert an order, mark a savepoint, insert a line for product nine, roll back to the savepoint, and insert a line for product six instead. The select shows that only the product six line remains, with the order intact. The table lists the commands. Use savepoints when part of a transaction may fail and the rest should continue; otherwise roll everything back. Chapter eight introduced rollback; this chapter shows why it matters when several sessions are active."
+    },
+    {
+      "course": "transactions",
+      "section": "anomalies",
+      "file": "transactions/anomalies.wav",
+      "narration": "Anomalies appear when sessions interleave. Every timeline here was run in two real sessions, with time running downward. In the first, session A reads a price of fifty-nine, session B commits sixty-four, and A's second read, in the same transaction, returns sixty-four. That is a non-repeatable read, allowed by read committed, the default level. In the second, both sessions read a stock of one hundred twenty and each writes one nineteen, so two sales produced one decrement: a lost update. The fix is the fourth card: let the database compute from the current row with stock equals stock minus one; session B waits for A, and the final stock is one eighteen. The third timeline is write skew. Both sessions check that two people are on duty, each takes a different person off duty, and both commit, leaving nobody. Each transaction was correct alone. Timing made the mix wrong, and the next section shows which isolation level prevents it."
+    },
+    {
+      "course": "transactions",
+      "section": "isolation-levels",
+      "file": "transactions/isolation-levels.wav",
+      "narration": "An isolation level states what one transaction may see of the others' work. This is where SQL concepts and PostgreSQL's own behaviour must be kept apart. In PostgreSQL, read committed takes a new snapshot for each statement; repeatable read takes one snapshot for the whole transaction; and serializable behaves as if transactions ran one after another. In the first timeline, session A at repeatable read keeps seeing the price fifty-nine and the pending count three, even after B commits a new price and a new pending order, so there is no phantom either. When A then tries to update the row that B changed, PostgreSQL refuses with a serialization failure, state forty-zero-zero-one. The second timeline replays the write-skew pair at serializable: the second commit is refused, and one person stays on duty. The table summarises what each level prevents in PostgreSQL; the SQL standard allows more anomalies. A refusal is an instruction to run the whole transaction again, so pick the weakest level that protects the invariant, and design the retry."
+    },
+    {
+      "course": "transactions",
+      "section": "locking",
+      "file": "transactions/locking.wav",
+      "narration": "Locks are how concurrent writers take turns. When session A updates a row, it holds a lock on that row until it commits or rolls back. The timeline has three sessions. While A has an uncommitted update on product one, session C reads product one and sees one hundred twenty, the old version: readers are not blocked. C also updates product two without waiting, because different rows do not conflict. C then asks for a lock on product one with for update and no wait, and gets an immediate error instead of waiting. Session B updates product one and waits; the test runner confirmed B was waiting on a lock before A committed. When A commits, B's update runs, and the final stock is one eighteen. The table summarises what blocks what. The practical consequence is that a long transaction holds its locks for a long time, so other writers queue behind it; keep transactions short, and do not wait for a person's input inside one."
+    },
+    {
+      "course": "transactions",
+      "section": "mvcc",
+      "file": "transactions/mvcc.wav",
+      "narration": "Multiversion concurrency control explains the timelines we have seen. An update does not overwrite a row; it writes a new version, and the old version stays for snapshots that still need it. Each version records which transaction created it and which replaced it; the small table uses symbolic ids. Now read the three-session timeline. Session A takes a repeatable read snapshot and reads fifty-nine. Session B updates the price to sixty-four and sees its own change immediately. Session C, a fresh reader, still sees fifty-nine, because B has not committed. After B commits, C sees sixty-four, but A, whose snapshot is older, still sees fifty-nine. Only when A finishes does its next statement see sixty-four. That is why readers and writers do not block each other. The cost is old versions piling up, which vacuum reclaims; we state that but do not demonstrate it. A hidden test confirms that an update really produces a new row version."
+    },
+    {
+      "course": "transactions",
+      "section": "deadlocks",
+      "file": "transactions/deadlocks.wav",
+      "narration": "A deadlock is a cycle of waiting. Session A holds product one and wants product two; session B holds product two and wants product one. Neither can move. The first timeline runs it in two real sessions. After the deadlock timeout, one second by default, PostgreSQL aborts one of them with the error deadlock detected. Here session A waited first and was the victim, and B then continued. The second timeline does the same work taking locks in one agreed order, lowest product number first: B simply waits for A, and nothing is aborted. So the first remedy is to lock rows in a consistent order. The second is to expect occasional aborts, because deadlocks and serialization failures can still happen under load. The pseudocode card shows the shape of the retry loop: repeat a few times, roll back and wait briefly on a deadlock or a serialization failure, and give up on any other error. It is application code, so we describe it without running it."
+    },
+    {
+      "course": "transactions",
+      "section": "purchase-timelines",
+      "file": "transactions/purchase-timelines.wav",
+      "narration": "This worked case puts the chapter together: one laptop left and two buyers. We assume the default read committed level and a single stock row per product, which is the point of contention. In the naive timeline both sessions read a stock of one and decide there is enough. A decrements and commits. B's decrement waits, and then the check constraint refuses it, so the database is the last line of defence, but B gets an error, not a friendly message. In the guarded timeline the test is part of the update: stock minus one where stock is at least one. B waits for A, and after A commits, PostgreSQL re-checks B's where clause against the new row. Stock is now zero, so the update affects zero rows. The application reads update zero as sold out, creates no order, and the final stock is zero with exactly one order. The pseudocode shows that structure. Make the test and the change one statement, and retry on aborts. Operations now have explicit consistency guarantees; next we control who may perform them and integrate the full lifecycle."
+    },
+    {
+      "course": "access",
+      "section": "roles-ownership",
+      "file": "access/roles-ownership.wav",
+      "narration": "Access control starts with two different questions. Authentication asks who you are, and it is configured outside SQL with passwords or certificates, so we only describe it. Authorisation asks what that identity may do, and that is expressed in SQL as privileges granted to roles. In PostgreSQL, a user is simply a role that is allowed to log in. The first card shows two roles that differ only in that attribute. The second card shows a session acting as the analyst role. The third card shows the default: a brand-new role has no rights at all, so even a qualified query on the orders table is refused with permission denied for the schema. With an unqualified name you would get a does not exist message instead, because objects in a schema you may not use are invisible. The owner of an object, whoever created it, may do everything with it. So logging in grants nothing by itself: identity comes first, and privileges are explicit. The roles here are created inside a transaction that is rolled back, so nothing is left in the database."
+    },
+    {
+      "course": "access",
+      "section": "grant-revoke",
+      "file": "access/grant-revoke.wav",
+      "narration": "Privileges are granted per object and per action. The first card creates the analyst role, grants usage on the schema, select on orders and customers, and insert on orders, then acts as the analyst: counting orders returns eleven. The second card is a permission matrix, built with the has table privilege function. For orders, the analyst may select and insert but not update or delete; for customers only select; for payments nothing at all. The matrix is the picture a reviewer needs, because individual grants are hard to add up. The third card shows an action that was never granted: updating an order is refused with permission denied for the table. The fourth card shows revoke: after the select privilege is taken back, even reading is refused. Reading does not imply writing, and every action is a separate privilege. The runner is a superuser, so acting as the role with set role is what makes these checks real. Everything is rolled back afterwards."
+    },
+    {
+      "course": "access",
+      "section": "role-hierarchies",
+      "file": "access/role-hierarchies.wav",
+      "narration": "Granting privileges person by person does not scale, so we grant them to group roles and make people members. The graph shows two group roles: readers can select from every table, and writers can insert and update orders. Ana is a member of readers; the clerk is a member of both. Membership inherits the privileges, and the matrix for orders confirms it: ana can only select, while the clerk can select, insert and update, but not delete. The third card shows the least-privilege principle in action: the clerk's update succeeds, and the delete is refused because nobody was given delete, since no job needs it. The table lists the design rules: grant to roles rather than people, one role per job, only what the job needs, and review the matrix, because privileges tend to accumulate. More privileges feel safer for an application, but they widen every mistake. That is a design judgement, and it depends on the real jobs in your organisation, not on this small shop alone."
+    },
+    {
+      "course": "access",
+      "section": "views-policies",
+      "file": "access/views-policies.wav",
+      "narration": "There are two common ways to limit what a role can see. A view restricts columns. The first card creates a view of customer contacts without email or phone, grants it to the analyst, and the analyst can read the view but is refused on the customers table itself. By default a view runs with the rights of its owner, which is why this works; a security invoker option, from PostgreSQL fifteen, makes it use the caller's rights instead. A row-level policy restricts rows, and it is declared on the table. In the second card, a policy says a sales role sees only the orders whose employee matches a session setting. Employee four sees orders one, five and ten; employee five sees three and seven; and the owner still sees all eleven, because owners and superusers bypass policies. The warning tile is a lesson: the six online orders have no employee, so they match nobody. A policy that returns rows is not proof it is correct; check who it hides, and always test as the restricted role."
+    },
+    {
+      "course": "access",
+      "section": "parameters-boundaries",
+      "file": "access/parameters-boundaries.wav",
+      "narration": "Query text built by pasting user input is a security boundary problem. The first card pastes the input x quote or quote one equals quote one into the where clause, and the input becomes code: all nine customers come back. The second card passes the very same text as a parameter of a prepared statement. A normal address finds customer one, and the hostile text is just a value that matches nobody. Prepare and execute is the server-side equivalent of the placeholders that database drivers send. A parameter can only stand for a value. The third card shows that a table name cannot be a parameter, which is a syntax error, so names from outside must be checked against an allowlist or quoted with the format function and its identifier option, as the fourth card shows. Finally, the application should connect with a role that has only the privileges it needs, as a second layer: it may insert an order, but delete is refused. Separate values from code first; narrow privileges limit the damage if something is missed."
+    },
+    {
+      "course": "access",
+      "section": "integrated-case",
+      "file": "access/integrated-case.wav",
+      "narration": "This closing case follows one shop from design to controlled access. The chips mark where each chapter shows up. The tables, keys and constraints of chapters one and two make an order possible and refuse impossible ones. The first card places order twelve for Ben: insert the order and its line from chapter three, decrement the stock with a guarded update, as chapter nine taught, and read the order back through a join from chapter five, giving a total of fifty-nine eighty. The second card answers a business question with a common table expression and a window function: Dev leads with twelve hundred five, then Ben, then Asha. Chapter seven would ask what that query costs. The third card applies chapter ten: a support role sees order counts by status through a view, while the email column stays closed. Each choice had a reason, and the reasons are what we have tried to explain. This course illustrates reasoning on one small database, and it does not verify that anyone has gained practical competence. Continue exploring unfamiliar queries, documented engine differences, and failure cases; practical competence requires separate implementation experience."
     }
   ]
 }
