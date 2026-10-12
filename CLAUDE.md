@@ -6,14 +6,14 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–9 complete — 73 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10, `performance` 7/7,
-> `modification` 8/8, `transactions` 8/8). Work happens **directly on `main`** (decision of
-> 2026-10-11). `tsc`, `npm run check:sql` (163 snippets + 8 hidden verification files + 13 two-session
-> timelines) and `npm run build` clean; `npm run check` (layout + plan conformance) is clean for authored
-> content, and additionally reports the **narration-wav gate** for courses whose audio is still being
-> generated (see the audio note in chapter 7). All 73 routes rendered at 1920×1080 inside the density
-> targets. **Next: chapter 10 (`access`, 6 sections) — the last.**
+> **Status: ALL TEN CHAPTERS AUTHORED — 79 of 79 sections** (`foundations` 6, `structures` 9,
+> `loading` 5, `retrieval` 10, `combining` 10, `analytics` 10, `performance` 7, `modification` 8,
+> `transactions` 8, `access` 6). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
+> `npm run check:sql` (182 snippets + 9 hidden verification files + 13 two-session timelines) and
+> `npm run build` clean; `npm run check` (layout + plan conformance) is clean for authored content, and
+> additionally reports the **narration-wav gate** for courses whose audio is still being generated (see
+> the audio note in chapter 7). All 79 routes rendered at 1920×1080 inside the density targets. **Next:
+> audio for the remaining courses and review against the README; no authoring left.**
 
 ## How the plan maps to the app
 
@@ -286,6 +286,24 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   `db/verify/ch09-transactions.sql`.
 - Scenes with two timelines plus tables lay out best as `flow: 'LR'` (timelines left, notes right);
   stacking everything in one column gets too narrow.
+
+### Chapter 10 notes
+
+- **Roles are cluster-wide but every snippet creates its own inside the runner's rolled-back
+  transaction**, so none survive (`CREATE ROLE`, `GRANT`, `CREATE POLICY` are all transactional). The
+  runner is a superuser, so a card must `SET ROLE` for a privilege check to mean anything; `RESET ROLE`
+  returns. In `db/verify` use `SET LOCAL ROLE` / `RESET ROLE` inside `DO` blocks.
+- **Permission errors depend on the name used:** an unqualified `orders` under a role with no `USAGE` on
+  the schema is "relation does not exist" (invisible); `shop.orders` is "permission denied for schema
+  shop". Show the qualified form, say why.
+- **Permission matrices are `has_table_privilege()` output** (role × table × action), not hand-typed.
+- Default views run with the **owner's** rights; `security_invoker` is PostgreSQL 15+ (verified on 16).
+  Row policies are bypassed by owners and superusers, and rows matching no policy value (the 6 online
+  orders with NULL employee) are invisible to everyone restricted.
+- PREPARE/EXECUTE is the server-side form of driver placeholders; a parameter can only be a **value**.
+  Authentication (`pg_hba.conf`, passwords) is **described, not run**.
+- The closing narration ends with the plan's bridge and must not claim competence; the integrated case
+  reuses the earlier chapters' queries on `shop` only.
 
 ### Known, not a defect
 

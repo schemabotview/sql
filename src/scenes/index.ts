@@ -66,6 +66,12 @@ import { locking } from './transactions/locking'
 import { mvcc } from './transactions/mvcc'
 import { deadlocks } from './transactions/deadlocks'
 import { purchaseTimelines } from './transactions/purchase-timelines'
+import { rolesOwnership } from './access/roles-ownership'
+import { grantRevoke } from './access/grant-revoke'
+import { roleHierarchies } from './access/role-hierarchies'
+import { viewsPolicies } from './access/views-policies'
+import { parametersBoundaries } from './access/parameters-boundaries'
+import { integratedCase } from './access/integrated-case'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -158,6 +164,13 @@ const ALL: Scene[] = [
   mvcc,
   deadlocks,
   purchaseTimelines,
+  // chapter 10 — access
+  rolesOwnership,
+  grantRevoke,
+  roleHierarchies,
+  viewsPolicies,
+  parametersBoundaries,
+  integratedCase,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))
