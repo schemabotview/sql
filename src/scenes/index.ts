@@ -50,6 +50,14 @@ import { indexDesign } from './performance/index-design'
 import { indexFriendly } from './performance/index-friendly'
 import { compareAlternatives } from './performance/compare-alternatives'
 import { materializedViews } from './performance/materialized-views'
+import { affectedRows } from './modification/affected-rows'
+import { updateSafely } from './modification/update-safely'
+import { deleteSafely } from './modification/delete-safely'
+import { insertSelect } from './modification/insert-select'
+import { modifyJoins } from './modification/modify-joins'
+import { upsertMerge } from './modification/upsert-merge'
+import { cascadesTriggers } from './modification/cascades-triggers'
+import { cleaningCase } from './modification/cleaning-case'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -124,6 +132,15 @@ const ALL: Scene[] = [
   indexFriendly,
   compareAlternatives,
   materializedViews,
+  // chapter 8 — modification
+  affectedRows,
+  updateSafely,
+  deleteSafely,
+  insertSelect,
+  modifyJoins,
+  upsertMerge,
+  cascadesTriggers,
+  cleaningCase,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

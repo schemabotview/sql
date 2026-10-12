@@ -67,3 +67,32 @@ export function planPair(o: { id: string; title: string; file: string; sql: stri
   })
   return { id: `g-${o.id}`, label: o.title, pattern: 'group', icon: 'none', cols: 1, children, edges }
 }
+
+// Chapter 8: a code card with its result tables STACKED in one container beside it (pair() fans results
+// out horizontally, which makes a board with three or more results wide and short).
+export function pairSide(o: { id: string; title: string; file: string; sql: string[]; outs: Out[] }): SceneNode {
+  const q = `q-${o.id}`
+  const results = `res-${o.id}`
+  return {
+    id: `g-${o.id}`,
+    label: o.title,
+    pattern: 'group',
+    icon: 'none',
+    cols: 2,
+    children: [
+      { id: q, kind: 'code', filename: o.file, hug: true, label: o.sql.join('\n') },
+      {
+        id: results,
+        label: 'what each statement returned',
+        pattern: 'group',
+        icon: 'none',
+        cols: 1,
+        children: o.outs.map((r, i) => ({ id: `r-${o.id}-${i}`, kind: 'table' as const, label: r.label, pattern: r.pattern ?? 'service', headers: r.headers, values: r.values })),
+      },
+    ],
+    edges: [{ source: q, target: results }],
+  }
+}
+
+// A command tag (UPDATE 2, DELETE 8, INSERT 0 5, MERGE 2) as a one-cell result.
+export const tag = (label: string, value: string, warn = false): Out => ({ label, headers: ['command tag'], values: [[value]], pattern: warn ? 'warn' : 'service' })

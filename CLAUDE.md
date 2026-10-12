@@ -6,13 +6,14 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–7 complete — 57 of 79 sections authored** (`foundations` 6/6, `structures`
-> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10, `performance` 7/7).
-> Work happens **directly on `main`** (decision of 2026-10-11). `tsc`, `npm run check:sql` (137
-> snippets + 6 hidden verification files) and `npm run build` clean; `npm run check` (layout + plan
-> conformance) is clean for authored content, and additionally reports the **narration-wav gate**
-> for courses whose audio is still being generated (see the audio note below). All 57 routes rendered
-> at 1920×1080 inside the density targets. **Next: chapter 8 (`modification`, 8 sections).**
+> **Status: Chapters 1–8 complete — 65 of 79 sections authored** (`foundations` 6/6, `structures`
+> 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10, `performance` 7/7,
+> `modification` 8/8). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
+> `npm run check:sql` (161 snippets + 7 hidden verification files) and `npm run build` clean;
+> `npm run check` (layout + plan conformance) is clean for authored content, and additionally reports
+> the **narration-wav gate** for courses whose audio is still being generated (see the audio note in
+> chapter 7). All 65 routes rendered at 1920×1080 inside the density targets. **Next: chapter 9
+> (`transactions`, 8 sections).**
 
 ## How the plan maps to the app
 
@@ -245,6 +246,24 @@ for described ones; code lines **under 64 columns** with `hug: true`.
 - **Audio gate:** `check-content` requires `public/audio/<course>/<id>.wav` for every section of a
   course once that course has one wav. `structures` 4–9 currently lack theirs; that is the audio
   pipeline, not authoring.
+
+### Chapter 8 notes
+
+- Everything runs on the frozen `shop` inside the snippet runner's rolled-back transaction, so `shop`
+  never changes. DML shows its **command tag** (`tag()` helper: `UPDATE 2`, `INSERT 0 5`, `MERGE 2`) or
+  `RETURNING` output; `psql` prints `RETURNING` rows before the tag.
+- **A `SET search_path` is transactional.** Do not put `ROLLBACK` (or `COMMIT`) inside a snippet: the
+  runner's `SET search_path` is rolled back with it and later unqualified names fail. Show rollback with
+  `SAVEPOINT … ROLLBACK TO`; a leading `BEGIN;` is harmless (a warning).
+- `pairSide()` stacks several result tables in one container beside the code card (use for 3+ results).
+- `db/verify/ch08-modification.sql` wraps each block in a sub-block that ends with a raised exception, so
+  blocks stay independent (a persistent change in one would skew the next block's counts).
+  `GET DIAGNOSTICS n = ROW_COUNT` asserts command-tag counts.
+- `MERGE` is labelled PostgreSQL 15+ (verified on 16); concurrency behaviour of upsert vs `MERGE` is
+  **stated, not run** (chapter 9 owns concurrency). Trigger demos use a tiny `plpgsql` function; stored
+  procedures in general stay deferred.
+- Domain points the numbers carry: shipping all `pending` orders also ships 10 (part paid) and 11
+  (unpaid); merging duplicate customers 3 and 9 fixes the order that predated customer 9's signup.
 
 ### Known, not a defect
 
