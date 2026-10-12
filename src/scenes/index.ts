@@ -58,6 +58,14 @@ import { modifyJoins } from './modification/modify-joins'
 import { upsertMerge } from './modification/upsert-merge'
 import { cascadesTriggers } from './modification/cascades-triggers'
 import { cleaningCase } from './modification/cleaning-case'
+import { invariantsAcid } from './transactions/invariants-acid'
+import { beginCommitSavepoints } from './transactions/begin-commit-savepoints'
+import { anomalies } from './transactions/anomalies'
+import { isolationLevels } from './transactions/isolation-levels'
+import { locking } from './transactions/locking'
+import { mvcc } from './transactions/mvcc'
+import { deadlocks } from './transactions/deadlocks'
+import { purchaseTimelines } from './transactions/purchase-timelines'
 import { dbmsVsFiles } from './foundations/dbms-vs-files'
 import { tableRelationships } from './foundations/table-relationships'
 import { keyIntegrity } from './foundations/key-integrity'
@@ -141,6 +149,15 @@ const ALL: Scene[] = [
   upsertMerge,
   cascadesTriggers,
   cleaningCase,
+  // chapter 9 — transactions
+  invariantsAcid,
+  beginCommitSavepoints,
+  anomalies,
+  isolationLevels,
+  locking,
+  mvcc,
+  deadlocks,
+  purchaseTimelines,
 ]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))

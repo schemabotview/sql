@@ -20,6 +20,7 @@
     "gen:desc": "graphl-gen-desc",
     "thumb": "graphl-thumb",
     "check:sql": "node scripts/check-sql.mjs",
+    "check:timelines": "node scripts/check-timelines.mjs --print",
     "db:reset": "psql -X -q -v ON_ERROR_STOP=1 -f db/schema.sql -f db/seed.sql -f db/perf.sql",
     "shot": "node scripts/shot.mjs"
   },

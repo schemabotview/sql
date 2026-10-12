@@ -92,6 +92,12 @@ for (const { where, sql } of snippets) {
 }
 console.log(`✓ ${ran} of ${snippets.length} SQL snippets behave as written`)
 
+// --- 4. two-session timelines (chapter 9) -----------------------------------------------------
+// Each timeline runs in real, separate sessions against a scratch schema; see check-timelines.mjs.
+const tl = spawnSync('node', ['scripts/check-timelines.mjs'], { encoding: 'utf8' })
+process.stdout.write(tl.stdout)
+if (tl.status !== 0) fail(`scripts/check-timelines.mjs: ${(tl.stderr || '').trim().split('\n').slice(0, 3).join(' | ')}`)
+
 if (failures) {
   console.error(`\n${failures} problem(s)`)
   process.exit(1)

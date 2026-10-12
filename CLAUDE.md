@@ -6,14 +6,14 @@ workspace `CLAUDE.md`; the app skeleton is `apache-spark`'s (`flow@^1.2.0`, `she
 Mapping the plan into the app's course/section model is this repo's job; the plan itself is not edited
 here (it is reviewed upstream — see the `toc` README's workflow).
 
-> **Status: Chapters 1–8 complete — 65 of 79 sections authored** (`foundations` 6/6, `structures`
+> **Status: Chapters 1–9 complete — 73 of 79 sections authored** (`foundations` 6/6, `structures`
 > 9/9, `loading` 5/5, `retrieval` 10/10, `combining` 10/10, `analytics` 10/10, `performance` 7/7,
-> `modification` 8/8). Work happens **directly on `main`** (decision of 2026-10-11). `tsc`,
-> `npm run check:sql` (161 snippets + 7 hidden verification files) and `npm run build` clean;
-> `npm run check` (layout + plan conformance) is clean for authored content, and additionally reports
-> the **narration-wav gate** for courses whose audio is still being generated (see the audio note in
-> chapter 7). All 65 routes rendered at 1920×1080 inside the density targets. **Next: chapter 9
-> (`transactions`, 8 sections).**
+> `modification` 8/8, `transactions` 8/8). Work happens **directly on `main`** (decision of
+> 2026-10-11). `tsc`, `npm run check:sql` (163 snippets + 8 hidden verification files + 13 two-session
+> timelines) and `npm run build` clean; `npm run check` (layout + plan conformance) is clean for authored
+> content, and additionally reports the **narration-wav gate** for courses whose audio is still being
+> generated (see the audio note in chapter 7). All 73 routes rendered at 1920×1080 inside the density
+> targets. **Next: chapter 10 (`access`, 6 sections) — the last.**
 
 ## How the plan maps to the app
 
@@ -264,6 +264,28 @@ for described ones; code lines **under 64 columns** with `hug: true`.
   procedures in general stay deferred.
 - Domain points the numbers carry: shipping all `pending` orders also ships 10 (part paid) and 11
   (unpaid); merging duplicate customers 3 and 9 fixes the order that predated customer 9's signup.
+
+### Chapter 9 notes
+
+- **Two-session timelines are verified by real sessions.** `scripts/check-timelines.mjs` (run by
+  `npm run check:sql`; `npm run check:timelines` prints the transcripts) replays every scenario in
+  `scripts/timelines.mjs` with **separate `psql` processes** on a scratch schema `cc` (committed copies of
+  `shop.products/orders/order_items` plus `cc.duty`, dropped afterwards, so `shop` and `perf` are never
+  touched). A `blocks: true` step is sent without waiting and the runner confirms the session is really
+  waiting on a lock (`pg_stat_activity`); `release: true` waits for the blocked steps after it. Slides
+  show the **same statements** and the outputs from `--print`; change a scenario and its board together.
+- Timeline cards are `timeline()` in `src/scenes/pair.ts` (`.txt` filenames: not run as snippets): one
+  code card per session, every step the same number of lines in each card so a row is one moment.
+  Long outputs are elided with `…` (the scenario's `expect` regex checks the real text).
+- The deadlock victim is deterministic: the session that **started waiting first** (its
+  `deadlock_timeout` fires first). Timings are never asserted.
+- PostgreSQL-specific, labelled as such: `READ UNCOMMITTED` = `READ COMMITTED`, no dirty reads, no
+  phantoms at `REPEATABLE READ`, `SERIALIZABLE` refuses with 40001. Durability and `VACUUM` are
+  **stated, not demonstrated**; retry and purchase cards are **pseudocode**.
+- Single-session claims (all-or-nothing, savepoints, a new row version via `ctid`) are in
+  `db/verify/ch09-transactions.sql`.
+- Scenes with two timelines plus tables lay out best as `flow: 'LR'` (timelines left, notes right);
+  stacking everything in one column gets too narrow.
 
 ### Known, not a defect
 

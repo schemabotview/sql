@@ -96,3 +96,31 @@ export function pairSide(o: { id: string; title: string; file: string; sql: stri
 
 // A command tag (UPDATE 2, DELETE 8, INSERT 0 5, MERGE 2) as a one-cell result.
 export const tag = (label: string, value: string, warn = false): Out => ({ label, headers: ['command tag'], values: [[value]], pattern: warn ? 'warn' : 'service' })
+
+// Chapter 9: a two- or three-session TIMELINE. One code card per session, side by side; every step takes
+// the same number of lines in every card (blank where that session is idle), so a row across the cards is
+// one moment in time and time runs downward. Statements are exactly those scripts/timelines.mjs runs in
+// separate sessions; `out` is what the step printed there ("waits" marks a step that blocked first).
+// Cards use `.txt` filenames: they are verified by scripts/check-timelines.mjs, not run by check:sql.
+export interface Step {
+  who: 'A' | 'B' | 'C'
+  sql: string[]
+  out?: string
+}
+
+export function timeline(o: { id: string; title: string; sessions?: ('A' | 'B' | 'C')[]; steps: Step[] }): SceneNode {
+  const sessions = o.sessions ?? ['A', 'B']
+  const blocks = o.steps.map((s) => {
+    const lines = [...s.sql]
+    if (s.out) lines.push(`-- ${s.out}`)
+    return { who: s.who, lines }
+  })
+  const cards: SceneNode[] = sessions.map((who) => {
+    const lines: string[] = []
+    for (const b of blocks) {
+      for (let i = 0; i < b.lines.length; i++) lines.push(b.who === who ? b.lines[i] : '')
+    }
+    return { id: `s-${o.id}-${who}`, kind: 'code' as const, filename: `session ${who}.txt`, hug: true, label: lines.join('\n') }
+  })
+  return { id: `g-${o.id}`, label: o.title, pattern: 'group', icon: 'none', cols: sessions.length, children: cards }
+}

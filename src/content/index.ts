@@ -4,6 +4,7 @@ import { loading } from './loading'
 import { analytics } from './analytics'
 import { performance } from './performance'
 import { modification } from './modification'
+import { transactions } from './transactions'
 import { combining } from './combining'
 import { retrieval } from './retrieval'
 import type { Course, Section } from './types'
@@ -23,7 +24,7 @@ import type { Course, Section } from './types'
 //   transactions  9  Transactions and Concurrency                     (8)
 //   access        10 Access Control and Integrated Reasoning          (6)
 //
-// 65 of 79 sections authored: chapters 1–8 complete.
+// 73 of 79 sections authored: chapters 1–9 complete.
 export const COURSES: Record<string, Course> = {
   [foundations.id]: foundations,
   [structures.id]: structures,
@@ -33,6 +34,7 @@ export const COURSES: Record<string, Course> = {
   [analytics.id]: analytics,
   [performance.id]: performance,
   [modification.id]: modification,
+  [transactions.id]: transactions,
 }
 
 export type { Course, Section }
